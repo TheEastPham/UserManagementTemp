@@ -1,4 +1,6 @@
-﻿namespace CodeBase.API.Controller.Dto;
+﻿using System;
+
+namespace CodeBase.API.Controller.Dto;
 
 public record ProgressInputDto
 {

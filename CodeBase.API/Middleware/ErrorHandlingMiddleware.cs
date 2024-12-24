@@ -1,6 +1,8 @@
-﻿using System.Net;
-using CodeBase.API.Domain.Model;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
+using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
 namespace CodeBase.API.Middleware;

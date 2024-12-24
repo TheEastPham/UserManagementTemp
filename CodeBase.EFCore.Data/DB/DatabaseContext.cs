@@ -1,14 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace CodeBase.EFCore.Data.DbContext;
+namespace CodeBase.EFCore.Data.DB;
 
-public class DatabaseContext: Microsoft.EntityFrameworkCore.DbContext, IDbContext
+public class DatabaseContext : DbContext, IBaseContext
 {
     public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
     {
-
     }
-
+    
     public void MarkAsModified(object o, string propertyName)
     {
         this.Entry(o).Property(propertyName).IsModified = true;

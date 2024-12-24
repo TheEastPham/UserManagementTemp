@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace CodeBase.EFCore.Data.DbContext;
+namespace CodeBase.EFCore.Data.DB;
 
-public interface IDbContext : IDisposable
+public interface IBaseContext : IDisposable
 {
     /// <summary>
     /// Dataset interface

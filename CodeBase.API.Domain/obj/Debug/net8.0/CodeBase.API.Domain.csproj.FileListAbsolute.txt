@@ -1,0 +1,11 @@
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\bin\Debug\net8.0\CodeBase.API.Domain.deps.json
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\bin\Debug\net8.0\CodeBase.API.Domain.dll
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\bin\Debug\net8.0\CodeBase.API.Domain.pdb
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\obj\Debug\net8.0\CodeBase.API.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\obj\Debug\net8.0\CodeBase.API.Domain.AssemblyInfoInputs.cache
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\obj\Debug\net8.0\CodeBase.API.Domain.AssemblyInfo.cs
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\obj\Debug\net8.0\CodeBase.API.Domain.csproj.CoreCompileInputs.cache
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\obj\Debug\net8.0\CodeBase.API.Domain.dll
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\obj\Debug\net8.0\refint\CodeBase.API.Domain.dll
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\obj\Debug\net8.0\CodeBase.API.Domain.pdb
+D:\Workspace\Practive\QuestingEngine\QuestingService\CodeBase.API.Domain\obj\Debug\net8.0\ref\CodeBase.API.Domain.dll

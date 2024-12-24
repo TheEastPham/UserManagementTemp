@@ -1,0 +1,8 @@
+﻿namespace CodeBase.API.Domain.Model.TransferObject.UserData;
+
+public enum RoleNames
+{
+    Admin = 0,
+    Supporter = 1,
+    Player = 2,
+}

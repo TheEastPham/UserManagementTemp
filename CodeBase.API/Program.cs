@@ -5,11 +5,7 @@ using CodeBase.Utility.Certificates;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,7 +24,8 @@ builder.Configuration.GetSection("ApplicationSettings").Bind(applicationSettings
 builder.Services.AddSingleton(applicationSettings);
 builder.Services.AddDbContext<DatabaseContext>(options =>
 {
-    options.UseInMemoryDatabase(builder.Configuration.GetConnectionString("CodeBase.Domain") ?? string.Empty);
+    //options.UseInMemoryDatabase(builder.Configuration.GetConnectionString("InMemory"));
+    options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite"));
 });
 var certificate = JwtCertificateTools.GetIdentityCertificate(Directory.GetCurrentDirectory(), builder.Configuration);
 

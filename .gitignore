@@ -7,6 +7,9 @@
 node_modules/
 dist/
 
+# info files
+*.info
+
 # Compiled Java class files
 *.class
 
@@ -86,3 +89,4 @@ msbuild.wrn
 .vs/
 
 Log/
+obj/

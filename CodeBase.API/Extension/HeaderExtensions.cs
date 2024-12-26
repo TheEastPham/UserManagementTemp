@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using CodeBase.API.Domain.Model.TransferObject;
-using CodeBase.API.Domain.Model.TransferObject.UserData;
-using Microsoft.AspNetCore.Http;
+﻿using System.Text;
+using CodeBase.Model.TransferObject.UserData;
 using Newtonsoft.Json;
 
 namespace CodeBase.API.Extension;
@@ -13,10 +8,10 @@ public static class HeaderExtensions
 {
     public static UserDataDto? GetUserIdentify(this IHeaderDictionary header)
     {
-        return header.ContainsKey("x-gs-user")
+        return header.ContainsKey("x-base-user")
             ? JsonConvert.DeserializeObject<UserDataDto>(
                 Encoding.Default.GetString(
-                    Convert.FromBase64String(header["x-gs-user"])))
+                    Convert.FromBase64String(header["x-base-user"])))
             : null;
     }
 

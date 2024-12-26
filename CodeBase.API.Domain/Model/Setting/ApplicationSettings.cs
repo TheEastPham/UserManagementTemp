@@ -1,4 +1,4 @@
-﻿namespace CodeBase.API.Domain.Model.Setting;
+﻿namespace CodeBase.Model.Setting;
 
 public class ApplicationSettings
 {

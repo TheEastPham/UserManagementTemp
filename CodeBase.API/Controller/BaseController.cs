@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeBase.API.Domain.Model.TransferObject.UserData;
 using CodeBase.API.Extension;
+using CodeBase.Model.TransferObject.UserData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 

@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.ApplicationInsights" Version="2.22.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.11" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.5"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
@@ -15,7 +16,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\CodeBase.API.Domain\CodeBase.API.Domain.csproj"/>
+        <ProjectReference Include="..\CodeBase.API.Domain\CodeBase.Domain.csproj" />
         <ProjectReference Include="..\CodeBase.EFCore.Data\CodeBase.EFCore.Data.csproj"/>
+        <ProjectReference Include="..\CodeBase.Utility\CodeBase.Utility.csproj" />
     </ItemGroup>
 
     <PropertyGroup>

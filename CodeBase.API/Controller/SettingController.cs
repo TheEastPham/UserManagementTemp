@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using CodeBase.API.Domain.Model.Setting;
+using CodeBase.Model.Setting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 

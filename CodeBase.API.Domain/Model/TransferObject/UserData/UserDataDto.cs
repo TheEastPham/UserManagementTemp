@@ -1,4 +1,4 @@
-﻿namespace CodeBase.API.Domain.Model.TransferObject.UserData;
+﻿namespace CodeBase.Model.TransferObject.UserData;
 
 public class UserDataDto
 {

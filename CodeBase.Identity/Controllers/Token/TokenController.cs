@@ -24,8 +24,8 @@ public class TokenController : ControllerBase
         var user = await _userManager.FindByNameAsync(model.Username);
         if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
             return Unauthorized();
-
-        var token = JwtToken.GenerateToken(user, _configuration["Jwt:Key"]);
+        var roles = await _userManager.GetRolesAsync(user);
+        var token = JwtToken.GenerateToken(user, roles.ToList(), _configuration["Jwt:Key"]);
         return Ok(new { Token = token });
     }
 }

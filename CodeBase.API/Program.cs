@@ -1,7 +1,8 @@
+using System.Text;
 using CodeBase.API.Middleware;
 using CodeBase.EFCore.Data.DB;
 using CodeBase.Model.Setting;
-using CodeBase.Utility.Certificates;
+using CodeBase.Utility.UserSession;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +19,8 @@ builder.Services.AddControllers();
 // Register TelemetryClient
 builder.Services.AddSingleton<ITelemetryInitializer, OperationCorrelationTelemetryInitializer>();
 builder.Services.AddSingleton<TelemetryClient>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserSession, UserSession>();
 
 var applicationSettings = new ApplicationSettings();
 builder.Configuration.GetSection("ApplicationSettings").Bind(applicationSettings);
@@ -27,7 +30,8 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
     //options.UseInMemoryDatabase(builder.Configuration.GetConnectionString("InMemory"));
     options.UseSqlite(builder.Configuration.GetConnectionString("SqlLite"));
 });
-var certificate = JwtCertificateTools.GetIdentityCertificate(Directory.GetCurrentDirectory(), builder.Configuration);
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.ASCII.GetBytes(jwtSettings["Key"]);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -35,10 +39,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.RequireHttpsMetadata = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            ValidateLifetime = true,
             ValidateIssuer = false,
             ValidateAudience = false,
             ClockSkew = TimeSpan.FromSeconds(30),
-            IssuerSigningKey = new X509SecurityKey(certificate),
+            IssuerSigningKey = new SymmetricSecurityKey(key)
         };
         options.Events = new JwtBearerEvents
         {

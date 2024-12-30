@@ -3,7 +3,7 @@
 public class Player
 {
     public Guid UserId { get; set; }
-    public string PlayerId { get; set; }
+    public long PlayerId { get; set; }
     public string Name { get; set; }
     public int Level { get; set; }
     public int Chips { get; set; }

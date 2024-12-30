@@ -22,6 +22,10 @@
         <ProjectReference Include="..\CodeBase.Utility\CodeBase.Utility.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Extension\" />
+    </ItemGroup>
+
     <PropertyGroup>
         <OutputPath>$(ProjectDir)obj\</OutputPath>
         <IntermediateOutputPath>$(ProjectDir)obj\</IntermediateOutputPath>

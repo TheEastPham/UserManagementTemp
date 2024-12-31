@@ -1,11 +1,18 @@
 ﻿using System.Text.Json;
 using CodeBase.EFCore.Data.Model;
+using CodeBase.EFCore.Data.Repository.Interface;
 
 namespace CodeBase.QuestService;
 
 public class QuestService : IQuestService
 {
-    
+    private readonly IQuestRepository _questRepository;
+
+    public QuestService(IQuestRepository questRepository)
+    {
+        _questRepository = questRepository;
+    }
+
     public async Task<bool> InitializeQuests()
     {
         var quests = LoadQuests();
@@ -14,6 +21,7 @@ public class QuestService : IQuestService
             return false;
         }
 
+        await _questRepository.UpdateQuests(quests);
         return true;
     }
 
@@ -23,7 +31,7 @@ public class QuestService : IQuestService
     {
         var json = File.ReadAllText("quests.json");
         var quests = JsonSerializer.Deserialize<List<Quest>>(json);
-        return [..quests];
+        return quests;
     }
 
     #endregion

@@ -1,5 +1,4 @@
 ﻿using System.Security.Cryptography.X509Certificates;
-using Microsoft.Extensions.Configuration;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
@@ -12,13 +11,13 @@ namespace CodeBase.Utility.Certificates;
 
 public static class JwtCertificateTools
 {
-    public static X509Certificate2 GetIdentityCertificate(string basePath, IConfiguration configuration)
-    {
-        var path =  configuration["Certificates:Path"] ?? "IS4.pfx" ;
-        var pfxPath = Path.Combine(basePath,path);
-        var pfxPassword =  configuration["Certificates:Password"] ?? "xB123456" ;
-        return new X509Certificate2(pfxPath, pfxPassword);
-    }
+    // public static X509Certificate2 GetIdentityCertificate(string basePath, IConfiguration configuration)
+    // {
+    //     var path =  configuration["Certificates:Path"] ?? "IS4.pfx" ;
+    //     var pfxPath = Path.Combine(basePath,path);
+    //     var pfxPassword =  configuration["Certificates:Password"] ?? "xB123456" ;
+    //     return new X509Certificate2(pfxPath, pfxPassword);
+    // }
     
     static X509Certificate2 GenerateCertificate(string certName)
     {

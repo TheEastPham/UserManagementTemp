@@ -1,0 +1,59 @@
+[
+  {
+    "Id": 1,
+    "Name": "Quest 1",
+    "TotalPointsRequired": 100,
+    "RateFromBet": 1.5,
+    "LevelBonusRate": 0.1,
+    "Milestones": [
+      {
+        "Id": 1,
+        "Description": "Milestone 1 for Quest 1",
+        "PointsRequired": 50
+      },
+      {
+        "Id": 2,
+        "Description": "Milestone 2 for Quest 1",
+        "PointsRequired": 100
+      }
+    ]
+  },
+  {
+    "Id": 2,
+    "Name": "Quest 2",
+    "TotalPointsRequired": 200,
+    "RateFromBet": 2.0,
+    "LevelBonusRate": 0.2,
+    "Milestones": [
+      {
+        "Id": 3,
+        "Description": "Milestone 1 for Quest 2",
+        "PointsRequired": 100
+      },
+      {
+        "Id": 4,
+        "Description": "Milestone 2 for Quest 2",
+        "PointsRequired": 200
+      }
+    ]
+  },
+  {
+    "Id": 3,
+    "Name": "Quest 3",
+    "TotalPointsRequired": 300,
+    "RateFromBet": 2.5,
+    "LevelBonusRate": 0.3,
+    "Milestones": [
+      {
+        "Id": 5,
+        "Description": "Milestone 1 for Quest 3",
+        "PointsRequired": 150
+      },
+      {
+        "Id": 6,
+        "Description": "Milestone 2 for Quest 3",
+        "PointsRequired": 300
+      }
+    ]
+  }
+]

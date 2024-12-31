@@ -1,6 +1,8 @@
 using System.Text;
 using CodeBase.API.Middleware;
 using CodeBase.EFCore.Data.DB;
+using CodeBase.EFCore.Data.Repository;
+using CodeBase.EFCore.Data.Repository.Interface;
 using CodeBase.Model.Setting;
 using CodeBase.QuestService;
 using CodeBase.Utility.UserSession;
@@ -22,7 +24,8 @@ builder.Services.AddSingleton<ITelemetryInitializer, OperationCorrelationTelemet
 builder.Services.AddSingleton<TelemetryClient>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserSession, UserSession>();
-builder.Services.AddSingleton<IQuestService>(new QuestService());
+builder.Services.AddScoped<IQuestRepository, QuestRepository>();
+builder.Services.AddScoped<IQuestService, QuestService>();
 
 var applicationSettings = new ApplicationSettings();
 builder.Configuration.GetSection("ApplicationSettings").Bind(applicationSettings);

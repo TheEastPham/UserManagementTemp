@@ -2,6 +2,7 @@ using System.Text;
 using CodeBase.API.Middleware;
 using CodeBase.EFCore.Data.DB;
 using CodeBase.Model.Setting;
+using CodeBase.QuestService;
 using CodeBase.Utility.UserSession;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -21,6 +22,7 @@ builder.Services.AddSingleton<ITelemetryInitializer, OperationCorrelationTelemet
 builder.Services.AddSingleton<TelemetryClient>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserSession, UserSession>();
+builder.Services.AddSingleton<IQuestService>(new QuestService());
 
 var applicationSettings = new ApplicationSettings();
 builder.Configuration.GetSection("ApplicationSettings").Bind(applicationSettings);

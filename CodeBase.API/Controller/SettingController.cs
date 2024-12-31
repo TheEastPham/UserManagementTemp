@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CodeBase.Model.Setting;
+using CodeBase.QuestService;
 using CodeBase.Utility.UserSession;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,15 @@ namespace CodeBase.API.Controller;
 public class SettingController : BaseController<SettingController>
 {
     private readonly ApplicationSettings _applicationSettings;
-    private readonly IUserSession _userSession;
-    public SettingController(ILogger<SettingController> logger, ApplicationSettings applicationSettings, IUserSession userSession) : base(logger)
+    private readonly IQuestService _questService;
+
+    public SettingController(
+        ILogger<SettingController> logger,
+        ApplicationSettings applicationSettings,
+        IQuestService questService) : base(logger)
     {
         _applicationSettings = applicationSettings;
-        _userSession = userSession;
+        _questService = questService;
     }
     
     [HttpGet("get")]
@@ -24,5 +29,17 @@ public class SettingController : BaseController<SettingController>
     public async Task<ApplicationSettings> GetSetting()
     {
         return _applicationSettings;
+    }
+    
+    [HttpPost("initialize")]
+    public async Task<IActionResult> InitializeQuests()
+    {
+        var result = await _questService.InitializeQuests();
+
+        
+        // _context.Quests.AddRange(quests);
+        // _context.SaveChanges();
+
+        return Ok("Quests and milestones initialized successfully.");
     }
 }

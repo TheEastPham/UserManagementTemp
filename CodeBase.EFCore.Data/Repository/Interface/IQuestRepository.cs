@@ -4,5 +4,5 @@ namespace CodeBase.EFCore.Data.Repository.Interface;
 
 public interface IQuestRepository
 {
-    Task<bool> UpdateQuests(IEnumerable<Quest> quests);
+    Task<bool> InitializeQuests(IEnumerable<Quest> quests);
 }

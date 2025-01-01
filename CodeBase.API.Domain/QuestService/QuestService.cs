@@ -21,7 +21,7 @@ public class QuestService : IQuestService
             return false;
         }
 
-        await _questRepository.UpdateQuests(quests);
+        await _questRepository.InitializeQuests(quests);
         return true;
     }
 

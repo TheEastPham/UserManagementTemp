@@ -14,14 +14,16 @@ public class SettingController : BaseController<SettingController>
 {
     private readonly ApplicationSettings _applicationSettings;
     private readonly IQuestService _questService;
+    private IUserSession _userSession;
 
     public SettingController(
         ILogger<SettingController> logger,
         ApplicationSettings applicationSettings,
-        IQuestService questService) : base(logger)
+        IQuestService questService, IUserSession userSession) : base(logger)
     {
         _applicationSettings = applicationSettings;
         _questService = questService;
+        _userSession = userSession;
     }
     
     [HttpGet("get")]
@@ -32,14 +34,14 @@ public class SettingController : BaseController<SettingController>
     }
     
     [HttpPost("initialize")]
+    [Authorize]
     public async Task<IActionResult> InitializeQuests()
     {
+        if(!_userSession.IsSupperUser)
+            return Unauthorized("You are not authorized to perform this action.");
         var result = await _questService.InitializeQuests();
-
-        
-        // _context.Quests.AddRange(quests);
-        // _context.SaveChanges();
-
-        return Ok("Quests and milestones initialized successfully.");
+        return result 
+            ? Ok("Quests and milestones initialized successfully.")
+            : BadRequest("Failed to initialize quests and milestones.");
     }
 }

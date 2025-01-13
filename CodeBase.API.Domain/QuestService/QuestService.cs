@@ -13,7 +13,7 @@ public class QuestService : IQuestService
         _questRepository = questRepository;
     }
 
-    public async Task<bool> InitializeQuests()
+    public async Task<bool> InitializeQuestsAsync()
     {
         var quests = LoadQuests();
         if (!quests.Any())
@@ -23,6 +23,11 @@ public class QuestService : IQuestService
 
         await _questRepository.InitializeQuests(quests);
         return true;
+    }
+
+    public async Task<List<Quest>> GetAllQuestsAsync()
+    {
+        return await _questRepository.GetAllQuestsAsync();
     }
 
     #region private functions

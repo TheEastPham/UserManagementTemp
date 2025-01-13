@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CodeBase.API.Controller.Dto;
+﻿namespace CodeBase.API.Controller.Quest.Dtos;
 
 public record ProgressInputDto
 {

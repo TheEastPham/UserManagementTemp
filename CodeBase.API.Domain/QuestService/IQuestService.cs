@@ -4,5 +4,6 @@ namespace CodeBase.QuestService;
 
 public interface IQuestService
 {
-    Task<bool> InitializeQuests();
+    Task<bool> InitializeQuestsAsync();
+    Task<List<Quest>> GetAllQuestsAsync();
 }

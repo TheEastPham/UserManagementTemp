@@ -28,4 +28,12 @@ public class QuestRepository : IQuestRepository
         _context.Quests.AddRange(quests);
         return await _context.SaveChangesAsync() > 0;
     }
+
+    public async Task<List<Quest>> GetAllQuestsAsync()
+    {
+        return await _context.Quests
+            .Include(q => q.Milestones)
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }

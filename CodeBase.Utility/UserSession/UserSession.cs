@@ -22,5 +22,5 @@ public class UserSession : IUserSession
     public List<string> Roldes => Principal.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
 
     public string Name => Principal?.FindFirst(ClaimTypes.Name)?.Value ?? string.Empty;
-    public bool IsSupperUser => Roldes.Contains("Admin");
+    public bool IsSupperUser => Roldes.Contains("admin");
 }

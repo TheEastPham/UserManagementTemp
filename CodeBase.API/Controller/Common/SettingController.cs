@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using CodeBase.API.Controller.Dtos;
 using CodeBase.Model.Setting;
-using CodeBase.QuestService;
+using CodeBase.Service;
 using CodeBase.Utility.UserSession;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,13 +14,14 @@ public class SettingController : BaseController<SettingController>
 {
     private readonly ApplicationSettings _applicationSettings;
     private readonly IQuestService _questService;
-    private IUserSession _userSession;
+    private readonly IUserSession _userSession;
     private readonly IMapper _mapper;
 
     public SettingController(
         ILogger<SettingController> logger,
         ApplicationSettings applicationSettings,
-        IQuestService questService, IUserSession userSession,
+        IQuestService questService, 
+        IUserSession userSession,
         IMapper mapper) : base(logger)
     {
         _applicationSettings = applicationSettings;

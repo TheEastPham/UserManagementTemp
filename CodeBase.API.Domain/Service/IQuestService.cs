@@ -1,6 +1,6 @@
 ﻿using CodeBase.EFCore.Data.Model;
 
-namespace CodeBase.QuestService;
+namespace CodeBase.Service;
 
 public interface IQuestService
 {

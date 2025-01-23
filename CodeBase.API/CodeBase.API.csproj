@@ -17,7 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CodeBase.API.Domain\CodeBase.API.Domain.csproj"/>
         <ProjectReference Include="..\CodeBase.API.Domain\CodeBase.Domain.csproj" />
         <ProjectReference Include="..\CodeBase.EFCore.Data\CodeBase.EFCore.Data.csproj"/>
         <ProjectReference Include="..\CodeBase.Utility\CodeBase.Utility.csproj" />

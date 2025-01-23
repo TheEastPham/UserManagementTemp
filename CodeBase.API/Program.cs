@@ -5,7 +5,7 @@ using CodeBase.EFCore.Data.DB;
 using CodeBase.EFCore.Data.Repository;
 using CodeBase.EFCore.Data.Repository.Interface;
 using CodeBase.Model.Setting;
-using CodeBase.QuestService;
+using CodeBase.Service;
 using CodeBase.Utility.UserSession;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Extensibility;

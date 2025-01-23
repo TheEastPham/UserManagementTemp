@@ -2,7 +2,7 @@
 using CodeBase.EFCore.Data.Model;
 using CodeBase.EFCore.Data.Repository.Interface;
 
-namespace CodeBase.QuestService;
+namespace CodeBase.Service;
 
 public class QuestService : IQuestService
 {

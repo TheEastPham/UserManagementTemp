@@ -2,9 +2,10 @@
 
 public class PlayerQuestState
 {
-    public string PlayerId { get; set; }
+    public long PlayerId { get; set; }
     public int QuestId { get; set; }
     public int TotalPoints { get; set; }
     public int LastMilestoneIndexCompleted { get; set; }
+    public bool IsComplete { get; set; }
     public DateTime UpdateTime { get; set; }
 }

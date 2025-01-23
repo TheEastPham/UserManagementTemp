@@ -7,4 +7,8 @@
         <RootNamespace>CodeBase</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\CodeBase.EFCore.Data\CodeBase.EFCore.Data.csproj" />
+    </ItemGroup>
+
 </Project>

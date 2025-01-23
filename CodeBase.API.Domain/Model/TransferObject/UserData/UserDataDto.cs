@@ -9,7 +9,5 @@ public class UserDataDto
     public string? Email { get; set; }
 
     public IEnumerable<RoleDataDto>? Roles { get; set; }
-    public Guid PrimaryRegionId { get; set; }
-    public string? CountryCode { get; set; }
 
 }

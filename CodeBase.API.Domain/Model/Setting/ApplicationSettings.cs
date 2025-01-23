@@ -2,6 +2,7 @@
 
 public class ApplicationSettings
 {
-    public int Total { get; set; }
-    public int Milestones { get; set; }
+    public int TotalQuest { get; set; }
+    public int TotalMilestones { get; set; }
+    public float LevelBonusRate { get; set; }
 }

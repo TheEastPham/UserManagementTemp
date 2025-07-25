@@ -1,0 +1,105 @@
+version: '3.8'
+
+services:
+  # SQL Server Database
+  sql-server:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: base-sql-server-local
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=DevPassword123!
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql-server-data:/var/opt/mssql
+    networks:
+      - base-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P DevPassword123! -C -Q 'SELECT 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: base-redis-local
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - base-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # User Management Service with Seeding
+  user-management:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.usermanagement
+    container_name: base-user-management-local
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=baseUserManagement;User Id=sa;Password=DevPassword123!;TrustServerCertificate=true;
+      - ConnectionStrings__Redis=redis:6379
+      - JwtSettings__SecretKey=LocalDevelopmentSecretKeyThatShouldBeAtLeast32CharactersLong!
+      - JwtSettings__Issuer=base.UserManagement.Local
+      - JwtSettings__Audience=base.Client.Local
+      - JwtSettings__ExpiryMinutes=1440
+      - Seeding__SeedInitialAdmin=true
+      - Seeding__SeedTestUsers=true
+      - InitialAdmin__Email=admin@base.local
+      - InitialAdmin__Password=Adminpassword123!
+      - base_ADMIN_EMAIL=admin@base.local
+      - base_ADMIN_PASSWORD=Adminpassword123!
+      - Serilog__MinimumLevel__Default=Debug
+    ports:
+      - "5001:8080"
+    depends_on:
+      sql-server:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - base-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Admin Portal
+  admin-portal:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.adminportal
+    container_name: base-admin-portal-local
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL=http://localhost:5001
+      - NEXT_PUBLIC_AUTH_URL=http://localhost:5001/api/auth
+    networks:
+      - base-network
+    depends_on:
+      - user-management
+    restart: unless-stopped
+
+volumes:
+  sql-server-data:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  base-network:
+    driver: bridge

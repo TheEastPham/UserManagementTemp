@@ -1,0 +1,79 @@
+# Docker Compose for Integration Tests
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=IntegrationTest123!
+      - MSSQL_PID=Express
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -P IntegrationTest123! -Q 'SELECT 1' -C || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - test-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - test-network
+
+  integration-tests:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.integration-tests
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Connection strings for test environment
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=baseTest;User Id=SA;Password=IntegrationTest123!;TrustServerCertificate=True;MultipleActiveResultSets=true
+      - Redis__ConnectionString=redis:6379
+      - ASPNETCORE_ENVIRONMENT=Testing
+      - DOTNET_ENVIRONMENT=Testing
+      
+      # Test specific settings
+      - SQLSERVER_HOST=sqlserver
+      - SQLSERVER_PORT=1433
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      
+      # JWT and other settings
+      - Jwt__SecretKey=ThisIsAVeryLongSecretKeyForTestingPurposesOnly123456789
+      - Jwt__Issuer=base-test
+      - Jwt__Audience=base-test-audience
+      - Jwt__ExpirationMinutes=60
+      
+      # Logging
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft=Warning
+      - Logging__LogLevel__System=Warning
+      
+    volumes:
+      - ./TestResults:/app/TestResults
+    networks:
+      - test-network
+
+volumes:
+  sqlserver_data:
+
+networks:
+  test-network:
+    driver: bridge

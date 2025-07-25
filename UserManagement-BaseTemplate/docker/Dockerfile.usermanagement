@@ -1,0 +1,51 @@
+# ================================
+# Build Stage
+# ================================
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+
+# Copy solution and project files first for layer caching
+COPY src/Backend/Base.sln ./src/Backend/
+COPY src/Backend/UserManagement/Base.UserManagement.API/Base.UserManagement.API.csproj ./src/Backend/UserManagement/Base.UserManagement.API/
+COPY src/Backend/UserManagement/Base.UserManagement.Domain/Base.UserManagement.Domain.csproj ./src/Backend/UserManagement/Base.UserManagement.Domain/
+COPY src/Backend/UserManagement/Base.UserManagement.EFCore/Base.UserManagement.EFCore.csproj ./src/Backend/UserManagement/Base.UserManagement.EFCore/
+COPY src/Backend/Gateways/Base.ApiGateway/Base.ApiGateway.csproj ./src/Backend/Gateways/Base.ApiGateway/
+
+# Restore dependencies
+WORKDIR /app/src/Backend
+RUN dotnet restore Base.sln
+
+# Copy all source code
+COPY src/Backend/ ./
+
+# Build the application
+WORKDIR /app/src/Backend/UserManagement/Base.UserManagement.API
+RUN dotnet publish -c Release -o /app/publish
+
+# ================================
+# Runtime Stage
+# ================================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copy published application
+COPY --from=build /app/publish .
+
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+RUN chown -R appuser:appuser /app
+USER appuser
+
+# Configure application
+EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Production
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/health || exit 1
+
+ENTRYPOINT ["dotnet", "Base.UserManagement.API.dll"]

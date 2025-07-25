@@ -1,0 +1,39 @@
+# Development environment overrides
+version: '3.8'
+
+services:
+  sql-server:
+    environment:
+      - MSSQL_PID=Developer
+    volumes:
+      - sql-server-dev-data:/var/opt/mssql
+
+  user-management:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=baseUserManagement_Dev;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;
+      - JwtSettings__ExpiryInDays=1
+      - Serilog__MinimumLevel=Debug
+    volumes:
+      - ./logs/user-management:/app/logs
+
+  api-gateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Serilog__MinimumLevel=Debug
+    volumes:
+      - ./logs/api-gateway:/app/logs
+
+  admin-portal:
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - ./src/Frontend/AdminPortal:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+
+volumes:
+  sql-server-dev-data:

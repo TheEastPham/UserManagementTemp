@@ -1,0 +1,68 @@
+# VPS Development Environment Docker Compose
+version: '3.8'
+
+services:
+  # Development SQL Server
+  sql-server-dev:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: base-sql-dev
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=VpsDevStrong!Pass123
+      - MSSQL_PID=Developer
+    ports:
+      - "1434:1433"  # Different port from production
+    volumes:
+      - sql-dev-data:/var/opt/mssql
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+    restart: unless-stopped
+
+  # Development Redis
+  redis-dev:
+    image: redis:7-alpine
+    container_name: base-redis-dev
+    ports:
+      - "6380:6379"  # Different port from production
+    volumes:
+      - redis-dev-data:/data
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+    restart: unless-stopped
+
+  # Optional: Development Application Container
+  app-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.usermanagement
+    container_name: base-app-dev
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sql-server-dev;Database=baseUserManagement_Dev;User Id=sa;Password=VpsDevStrong!Pass123;TrustServerCertificate=true;
+      - ConnectionStrings__Redis=redis-dev:6379
+    ports:
+      - "8080:80"
+      - "8443:443"
+    depends_on:
+      - sql-server-dev
+      - redis-dev
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+    restart: unless-stopped
+
+volumes:
+  sql-dev-data:
+  redis-dev-data:
+
+networks:
+  default:
+    name: base-dev-network

@@ -8,15 +8,16 @@ WORKDIR /app
 COPY src/Backend/*.sln ./src/Backend/
 COPY src/Backend/Gateways/Base.ApiGateway/*.csproj ./src/Backend/Gateways/Base.ApiGateway/
 
-# Restore dependencies
-RUN dotnet restore ./src/Backend/Gateways/Base.ApiGateway/Base.ApiGateway.csproj
+# Clear NuGet cache and restore dependencies
+RUN dotnet nuget locals all --clear
+RUN dotnet restore ./src/Backend/Gateways/Base.ApiGateway/Base.ApiGateway.csproj --verbosity normal
 
 # Copy source code
 COPY src/Backend/Gateways/ ./src/Backend/Gateways/
 
-# Build application
+# Build application (without --no-restore to ensure proper dependency resolution)
 WORKDIR /app/src/Backend/Gateways/Base.ApiGateway
-RUN dotnet publish -c Release -o /app/publish --no-restore
+RUN dotnet publish -c Release -o /app/publish
 
 # ================================
 # Runtime Stage

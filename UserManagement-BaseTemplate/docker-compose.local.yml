@@ -41,9 +41,7 @@ services:
 
   # User Management Service with Seeding
   user-management:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.usermanagement
+    image: base/usermanagement:latest
     container_name: base-user-management-local
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -76,22 +74,41 @@ services:
       timeout: 10s
       retries: 3
 
+  # API Gateway
+  api-gateway:
+    image: base/gateway:latest
+    container_name: base-api-gateway-local
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - OCELOT_ENVIRONMENT=Development
+    ports:
+      - "5000:8080"
+    depends_on:
+      user-management:
+        condition: service_healthy
+    networks:
+      - base-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # Admin Portal
   admin-portal:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile.adminportal
+    image: base/adminportal:latest
     container_name: base-admin-portal-local
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=development
-      - NEXT_PUBLIC_API_URL=http://localhost:5001
-      - NEXT_PUBLIC_AUTH_URL=http://localhost:5001/api/auth
+      - NEXT_PUBLIC_API_URL=http://localhost:5000
+      - NEXT_PUBLIC_AUTH_URL=http://localhost:5000/api/auth
     networks:
       - base-network
     depends_on:
-      - user-management
+      - api-gateway
     restart: unless-stopped
 
 volumes:

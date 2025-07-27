@@ -142,8 +142,7 @@ class ApiService {
       firstName: profileData.firstName,
       lastName: profileData.lastName,
       phoneNumber: profileData.phone,
-      // Note: email cannot be updated via profile endpoint for security reasons
-      // department is not part of the backend DTO
+      // Note: email and department updates handled separately or ignored for security
     };
     
     return this.makeRequest<void>('/account/profile', {
@@ -156,7 +155,7 @@ class ApiService {
     currentPassword: string;
     newPassword: string;
   }) {
-    return this.makeRequest<void>('/users/me/password', {
+    return this.makeRequest<void>('/account/password', {
       method: 'PUT',
       body: JSON.stringify(passwordData),
     });
@@ -169,6 +168,131 @@ class ApiService {
       timestamp: string;
       details: string;
     }>>('/users/me/activity');
+  }
+
+  // Admin User Management API Methods (SystemAdmin only)
+  async getAllUsers(params?: {
+    page?: number;
+    pageSize?: number;
+    role?: string;
+    searchTerm?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.append('page', params.page.toString());
+    if (params?.pageSize) searchParams.append('pageSize', params.pageSize.toString());
+    if (params?.role) searchParams.append('role', params.role);
+    if (params?.searchTerm) searchParams.append('searchTerm', params.searchTerm);
+    
+    return this.makeRequest<{
+      users: Array<{
+        id: string;
+        email: string;
+        firstName: string;
+        lastName: string;
+        fullName: string;
+        isActive: boolean;
+        roles: string[];
+        createdAt: string;
+        lastLoginAt?: string;
+      }>;
+      totalCount: number;
+      page: number;
+      pageSize: number;
+      totalPages: number;
+    }>(`/users?${searchParams.toString()}`);
+  }
+
+  async getUserById(id: string) {
+    return this.makeRequest<{
+      id: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      fullName: string;
+      dateOfBirth?: string;
+      avatar?: string;
+      timeZone?: string;
+      language?: string;
+      createdAt: string;
+      updatedAt: string;
+      isActive: boolean;
+      lastLoginAt?: string;
+      roles: string[];
+    }>(`/users/${id}`);
+  }
+
+  async createUser(userData: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth?: string;
+    timeZone?: string;
+    language?: string;
+  }) {
+    return this.makeRequest<{
+      id: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      fullName: string;
+      isActive: boolean;
+      roles: string[];
+      createdAt: string;
+    }>('/users', {
+      method: 'POST',
+      body: JSON.stringify(userData),
+    });
+  }
+
+  async updateUser(id: string, userData: {
+    firstName: string;
+    lastName: string;
+    dateOfBirth?: string;
+    avatar?: string;
+    timeZone?: string;
+    language?: string;
+    phoneNumber?: string;
+    email?: string;
+  }) {
+    return this.makeRequest<{
+      id: string;
+      email: string;
+      firstName: string;
+      lastName: string;
+      fullName: string;
+      isActive: boolean;
+      roles: string[];
+      updatedAt: string;
+    }>(`/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        id,
+        ...userData,
+      }),
+    });
+  }
+
+  async deleteUser(id: string) {
+    return this.makeRequest<void>(`/users/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async assignRole(userId: string, roleName: string) {
+    return this.makeRequest<void>(`/users/${userId}/roles`, {
+      method: 'POST',
+      body: JSON.stringify({
+        userId,
+        roleName,
+      }),
+    });
+  }
+
+  async removeRole(userId: string, roleName: string) {
+    return this.makeRequest<void>(`/users/${userId}/roles/${roleName}`, {
+      method: 'DELETE',
+    });
   }
 
   // System API Methods

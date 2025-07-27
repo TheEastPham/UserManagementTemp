@@ -80,7 +80,20 @@ public record UpdateUserRequest(
     DateTime? DateOfBirth = null,
     string? Avatar = null,
     string? TimeZone = null,
-    string? Language = null
+    string? Language = null,
+    string? PhoneNumber = null,
+    string? Email = null
+);
+
+public record UpdateProfileRequest(
+    [Required] string FirstName,
+    [Required] string LastName,
+    string? PhoneNumber = null
+);
+
+public record ChangePasswordRequest(
+    [Required] string CurrentPassword,
+    [Required, MinLength(8)] string NewPassword
 );
 
 public record GetUsersRequest(

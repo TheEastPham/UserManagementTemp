@@ -18,6 +18,7 @@ public interface IUserService
     Task<bool> DeleteUserAsync(string id);
     Task<bool> AssignRoleAsync(AssignRoleRequest request);
     Task<bool> RemoveRoleAsync(string userId, string roleName);
+    Task<bool> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
 }
 
 public class UserService : IUserService
@@ -168,6 +169,21 @@ public class UserService : IUserService
             userEntity.TimeZone = request.TimeZone;
             userEntity.Language = request.Language;
             userEntity.UpdatedAt = DateTime.UtcNow;
+            
+            // Update phone number and email if provided
+            if (!string.IsNullOrEmpty(request.PhoneNumber))
+            {
+                userEntity.PhoneNumber = request.PhoneNumber;
+            }
+            
+            if (!string.IsNullOrEmpty(request.Email) && request.Email != userEntity.Email)
+            {
+                // Email update should be handled carefully - may require verification
+                userEntity.Email = request.Email;
+                userEntity.NormalizedEmail = request.Email.ToUpperInvariant();
+                userEntity.UserName = request.Email;
+                userEntity.NormalizedUserName = request.Email.ToUpperInvariant();
+            }
 
             await _userRepository.UpdateAsync(userEntity);
 
@@ -232,6 +248,26 @@ public class UserService : IUserService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error removing role {RoleName} from user {UserId}", roleName, userId);
+            throw;
+        }
+    }
+
+    public async Task<bool> ChangePasswordAsync(string userId, string currentPassword, string newPassword)
+    {
+        try
+        {
+            var userEntity = await _userManager.FindByIdAsync(userId);
+            if (userEntity == null)
+            {
+                throw new InvalidOperationException($"User with ID {userId} not found.");
+            }
+
+            var result = await _userManager.ChangePasswordAsync(userEntity, currentPassword, newPassword);
+            return result.Succeeded;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error changing password for user {UserId}", userId);
             throw;
         }
     }

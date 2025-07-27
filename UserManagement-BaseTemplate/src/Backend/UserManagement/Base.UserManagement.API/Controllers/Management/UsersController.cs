@@ -3,11 +3,11 @@ using Base.UserManagement.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Base.UserManagement.API.Controllers;
+namespace Base.UserManagement.API.Controllers.Management;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize(Roles = "SystemAdmin")] // Chỉ SystemAdmin mới được truy cập user management
 public class UsersController : ControllerBase
 {
     private readonly IUserService _userService;
@@ -23,7 +23,6 @@ public class UsersController : ControllerBase
     /// Get all users with pagination
     /// </summary>
     [HttpGet]
-    [Authorize(Roles = "SystemAdmin,ContentAdmin")]
     public async Task<ActionResult<GetUsersResponse>> GetUsers([FromQuery] GetUsersRequest request)
     {
         try
@@ -46,15 +45,7 @@ public class UsersController : ControllerBase
     {
         try
         {
-            // Users can only view their own profile unless they're admin
-            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            var isAdmin = User.IsInRole("SystemAdmin") || User.IsInRole("ContentAdmin");
-
-            if (currentUserId != id && !isAdmin)
-            {
-                return Forbid();
-            }
-
+            // Admin có thể xem bất kỳ user nào
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
             {
@@ -74,7 +65,6 @@ public class UsersController : ControllerBase
     /// Create new user
     /// </summary>
     [HttpPost]
-    [Authorize(Roles = "SystemAdmin")]
     public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserRequest request)
     {
         try
@@ -107,20 +97,12 @@ public class UsersController : ControllerBase
                 return BadRequest("Route ID does not match request ID");
             }
 
-            // Users can only update their own profile unless they're admin
-            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            var isAdmin = User.IsInRole("SystemAdmin") || User.IsInRole("ContentAdmin");
-
-            if (currentUserId != id && !isAdmin)
-            {
-                return Forbid();
-            }
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
+            // Admin có thể update bất kỳ user nào
             var user = await _userService.UpdateUserAsync(request);
             return Ok(user);
         }
@@ -139,7 +121,6 @@ public class UsersController : ControllerBase
     /// Delete user (soft delete)
     /// </summary>
     [HttpDelete("{id}")]
-    [Authorize(Roles = "SystemAdmin")]
     public async Task<ActionResult> DeleteUser(string id)
     {
         try
@@ -163,7 +144,6 @@ public class UsersController : ControllerBase
     /// Assign role to user
     /// </summary>
     [HttpPost("{id}/roles")]
-    [Authorize(Roles = "SystemAdmin")]
     public async Task<ActionResult> AssignRole(string id, [FromBody] AssignRoleRequest request)
     {
         try
@@ -197,7 +177,6 @@ public class UsersController : ControllerBase
     /// Remove role from user
     /// </summary>
     [HttpDelete("{id}/roles/{roleName}")]
-    [Authorize(Roles = "SystemAdmin")]
     public async Task<ActionResult> RemoveRole(string id, string roleName)
     {
         try

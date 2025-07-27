@@ -100,7 +100,7 @@ public class UserManagementDbContext : IdentityDbContext<UserEntity, RoleEntity,
                 Id = "2",
                 Name = "ContentAdmin",
                 NormalizedName = "CONTENTADMIN",
-                Description = "Content Administrator with user management permissions",
+                Description = "Content Administrator with content management permissions",
                 CreatedAt = DateTime.UtcNow
             },
             new RoleEntity
@@ -132,7 +132,7 @@ public class UserManagementDbContext : IdentityDbContext<UserEntity, RoleEntity,
             {
                 Id = 2,
                 Name = "ContentAdmin",
-                Description = "Moderate content and manage users - can review and manage user content",
+                Description = "Content management access - can manage content and moderate users",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow
             },

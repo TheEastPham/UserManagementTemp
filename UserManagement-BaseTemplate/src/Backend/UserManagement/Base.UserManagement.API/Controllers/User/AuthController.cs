@@ -3,7 +3,7 @@ using Base.UserManagement.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Base.UserManagement.API.Controllers;
+namespace Base.UserManagement.API.Controllers.User;
 
 [ApiController]
 [Route("api/[controller]")]

@@ -76,13 +76,16 @@ services:
 
   # API Gateway
   api-gateway:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gateway
     image: base/gateway:latest
     container_name: base-api-gateway-local
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - OCELOT_ENVIRONMENT=Development
     ports:
-      - "5000:8080"
+      - "5000:80"
     depends_on:
       user-management:
         condition: service_healthy
@@ -90,7 +93,7 @@ services:
       - base-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

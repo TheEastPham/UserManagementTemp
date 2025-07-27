@@ -3,52 +3,14 @@
     {
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "http",
-      "DownstreamHostAndPort": {
-        "Host": "localhost",
-        "Port": 5001
-      },
-      "UpstreamPathTemplate": "/api/users/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/{everything}",
-      "DownstreamScheme": "http", 
-      "DownstreamHostAndPort": {
-        "Host": "localhost",
-        "Port": 5001
-      },
-      "UpstreamPathTemplate": "/api/auth/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPort": {
-        "Host": "localhost", 
-        "Port": 5001
-      },
-      "UpstreamPathTemplate": "/api/account/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPort": {
-        "Host": "localhost",
-        "Port": 5001
-      },
-      "UpstreamPathTemplate": "/api/limitation/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
-    },
-    {
-      "DownstreamPathTemplate": "/{everything}",
-      "DownstreamScheme": "http",
-      "DownstreamHostAndPort": {
-        "Host": "localhost",
-        "Port": 5001
-      },
-      "UpstreamPathTemplate": "/health/{everything}",
-      "UpstreamHttpMethod": [ "GET" ]
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "user-management",
+          "Port": 8080
+        }
+      ],
+      "UpstreamPathTemplate": "/api/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS" ]
     }
   ],
   "GlobalConfiguration": {

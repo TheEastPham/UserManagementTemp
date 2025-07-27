@@ -12,7 +12,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=baseUserManagement_Dev;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;
+      - ConnectionStrings__DefaultConnection=Server=sql-server;Database=baseUserManagement;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;
       - JwtSettings__ExpiryInDays=1
       - Serilog__MinimumLevel=Debug
     volumes:

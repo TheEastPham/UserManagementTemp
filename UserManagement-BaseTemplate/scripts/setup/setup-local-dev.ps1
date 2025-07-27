@@ -55,10 +55,10 @@ Set-Location $projectPath
 # Set connection string based on SQL type
 if ($UseDockerSql) {
     Write-Info "Using Docker SQL Server 2022"
-    $connectionString = "Server=localhost,1433;Database=baseUserManagement_Dev;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;"
+    $connectionString = "Server=localhost,1433;Database=baseUserManagement;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true;"
 } else {
     Write-Info "Using LocalDB"
-    $connectionString = "Server=(localdb)\mssqllocaldb;Database=baseUserManagement_Dev;Trusted_Connection=true;MultipleActiveResultSets=true"
+    $connectionString = "Server=(localdb)\mssqllocaldb;Database=baseUserManagement;Trusted_Connection=true;MultipleActiveResultSets=true"
 }
 
 Write-Info "Connection String: $connectionString"

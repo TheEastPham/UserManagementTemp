@@ -62,7 +62,7 @@ namespace Base.UserManagement.EFCore.Migrations
                         new
                         {
                             Id = "1",
-                            CreatedAt = new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2420),
+                            CreatedAt = new DateTime(2025, 7, 28, 2, 52, 30, 380, DateTimeKind.Utc).AddTicks(920),
                             Description = "System Administrator with full system access",
                             IsActive = true,
                             Name = "SystemAdmin",
@@ -71,8 +71,8 @@ namespace Base.UserManagement.EFCore.Migrations
                         new
                         {
                             Id = "2",
-                            CreatedAt = new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2423),
-                            Description = "Content Administrator with user management permissions",
+                            CreatedAt = new DateTime(2025, 7, 28, 2, 52, 30, 380, DateTimeKind.Utc).AddTicks(923),
+                            Description = "Content Administrator with content management permissions",
                             IsActive = true,
                             Name = "ContentAdmin",
                             NormalizedName = "CONTENTADMIN"
@@ -80,7 +80,7 @@ namespace Base.UserManagement.EFCore.Migrations
                         new
                         {
                             Id = "3",
-                            CreatedAt = new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2425),
+                            CreatedAt = new DateTime(2025, 7, 28, 2, 52, 30, 380, DateTimeKind.Utc).AddTicks(926),
                             Description = "Regular user with basic permissions",
                             IsActive = true,
                             Name = "Member",
@@ -137,66 +137,6 @@ namespace Base.UserManagement.EFCore.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("SecurityEvents");
-                });
-
-            modelBuilder.Entity("Base.UserManagement.EFCore.Entities.SystemRoleEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("SystemRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2593),
-                            Description = "Full system access - can manage all aspects of the system",
-                            IsActive = true,
-                            Name = "SystemAdmin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2594),
-                            Description = "Moderate content and manage users - can review and manage user content",
-                            IsActive = true,
-                            Name = "ContentAdmin"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2596),
-                            Description = "Regular user access - standard user permissions",
-                            IsActive = true,
-                            Name = "Member"
-                        });
                 });
 
             modelBuilder.Entity("Base.UserManagement.EFCore.Entities.UserEntity", b =>

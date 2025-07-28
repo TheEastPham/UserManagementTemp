@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Base.UserManagement.EFCore.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialUserManagementSchema : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -84,23 +84,6 @@ namespace Base.UserManagement.EFCore.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SecurityEvents", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SystemRoles",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SystemRoles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -237,19 +220,9 @@ namespace Base.UserManagement.EFCore.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "CreatedAt", "Description", "IsActive", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "1", null, new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2420), "System Administrator with full system access", true, "SystemAdmin", "SYSTEMADMIN" },
-                    { "2", null, new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2423), "Content Administrator with user management permissions", true, "ContentAdmin", "CONTENTADMIN" },
-                    { "3", null, new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2425), "Regular user with basic permissions", true, "Member", "MEMBER" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "SystemRoles",
-                columns: new[] { "Id", "CreatedAt", "Description", "IsActive", "Name", "UpdatedAt" },
-                values: new object[,]
-                {
-                    { 1, new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2593), "Full system access - can manage all aspects of the system", true, "SystemAdmin", null },
-                    { 2, new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2594), "Moderate content and manage users - can review and manage user content", true, "ContentAdmin", null },
-                    { 3, new DateTime(2025, 7, 25, 8, 30, 14, 22, DateTimeKind.Utc).AddTicks(2596), "Regular user access - standard user permissions", true, "Member", null }
+                    { "1", null, new DateTime(2025, 7, 28, 2, 52, 30, 380, DateTimeKind.Utc).AddTicks(920), "System Administrator with full system access", true, "SystemAdmin", "SYSTEMADMIN" },
+                    { "2", null, new DateTime(2025, 7, 28, 2, 52, 30, 380, DateTimeKind.Utc).AddTicks(923), "Content Administrator with content management permissions", true, "ContentAdmin", "CONTENTADMIN" },
+                    { "3", null, new DateTime(2025, 7, 28, 2, 52, 30, 380, DateTimeKind.Utc).AddTicks(926), "Regular user with basic permissions", true, "Member", "MEMBER" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -314,12 +287,6 @@ namespace Base.UserManagement.EFCore.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SystemRoles_Name",
-                table: "SystemRoles",
-                column: "Name",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserProfiles_UserId",
                 table: "UserProfiles",
                 column: "UserId",
@@ -346,9 +313,6 @@ namespace Base.UserManagement.EFCore.Migrations
 
             migrationBuilder.DropTable(
                 name: "SecurityEvents");
-
-            migrationBuilder.DropTable(
-                name: "SystemRoles");
 
             migrationBuilder.DropTable(
                 name: "UserProfiles");

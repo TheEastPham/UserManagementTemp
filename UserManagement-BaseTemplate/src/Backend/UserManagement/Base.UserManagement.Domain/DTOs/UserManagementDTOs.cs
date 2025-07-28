@@ -118,31 +118,10 @@ public record AssignRoleRequest(
 {
     public bool IsValidRole()
     {
-        return Models.SystemRole.RoleNames.All.Contains(RoleName);
+        var validRoles = new[] { "SystemAdmin", "ContentAdmin", "Member" };
+        return validRoles.Contains(RoleName);
     }
 };
-
-// System Role DTOs
-public record SystemRoleDto(
-    int Id,
-    string Name,
-    string? Description,
-    bool IsActive,
-    DateTime CreatedAt,
-    DateTime? UpdatedAt
-);
-
-public record CreateSystemRoleRequest(
-    [Required, StringLength(50)] string Name,
-    [StringLength(200)] string? Description = null
-);
-
-public record UpdateSystemRoleRequest(
-    [Required] int Id,
-    [Required, StringLength(50)] string Name,
-    [StringLength(200)] string? Description = null,
-    bool IsActive = true
-);
 
 // Security Event DTO
 public record SecurityEventDto(
@@ -155,6 +134,27 @@ public record SecurityEventDto(
     Dictionary<string, object> Details,
     DateTime Timestamp,
     string Severity
+);
+
+// Role DTOs  
+public record RoleDto(
+    string Id,
+    string Name,
+    string? Description,
+    bool IsActive,
+    DateTime CreatedAt
+);
+
+public record CreateRoleRequest(
+    [Required, StringLength(50)] string Name,
+    [StringLength(200)] string? Description = null
+);
+
+public record UpdateRoleRequest(
+    [Required] string Id,
+    [Required, StringLength(50)] string Name,
+    [StringLength(200)] string? Description = null,
+    bool IsActive = true
 );
 
 // Validation Result

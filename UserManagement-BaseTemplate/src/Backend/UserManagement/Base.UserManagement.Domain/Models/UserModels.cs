@@ -39,29 +39,6 @@ public class UserProfile
 }
 
 /// <summary>
-/// System role domain model
-/// </summary>
-public class SystemRole
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public bool IsActive { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-    
-    // Predefined role constants
-    public static class RoleNames
-    {
-        public const string SystemAdmin = "SystemAdmin";
-        public const string ContentAdmin = "ContentAdmin";
-        public const string Member = "Member";
-        
-        public static readonly string[] All = { SystemAdmin, ContentAdmin, Member };
-    }
-}
-
-/// <summary>
 /// Security event domain model
 /// </summary>
 public class SecurityEvent

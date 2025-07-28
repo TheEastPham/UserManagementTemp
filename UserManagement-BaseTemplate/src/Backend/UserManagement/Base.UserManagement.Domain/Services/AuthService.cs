@@ -1,6 +1,7 @@
 using AutoMapper;
 using Base.UserManagement.Domain.DTOs;
 using Base.UserManagement.Domain.Models;
+using Base.UserManagement.Domain.Services.Interfaces;
 using Base.UserManagement.EFCore.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -12,14 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
 
 namespace Base.UserManagement.Domain.Services;
-
-public interface IAuthService
-{
-    Task<LoginResponse> LoginAsync(LoginRequest request);
-    Task<TokenResponse> RefreshTokenAsync(RefreshTokenRequest request);
-    Task<bool> LogoutAsync(string userId);
-    Task<RegisterResponse> RegisterAsync(RegisterRequest request);
-}
 
 public class AuthService : IAuthService
 {
@@ -168,7 +161,7 @@ public class AuthService : IAuthService
             if (result.Succeeded)
             {
                 // Assign default Member role
-                await _userManager.AddToRoleAsync(user, SystemRole.RoleNames.Member);
+                await _userManager.AddToRoleAsync(user, "Member");
                 return new RegisterResponse(true, "Registration successful", user.Id);
             }
 

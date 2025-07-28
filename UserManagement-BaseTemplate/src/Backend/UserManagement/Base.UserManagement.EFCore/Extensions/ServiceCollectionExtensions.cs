@@ -1,5 +1,6 @@
 using Base.UserManagement.EFCore.Data;
 using Base.UserManagement.EFCore.Repositories;
+using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +17,6 @@ public static class ServiceCollectionExtensions
 
         // Add Repositories
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<ISystemRoleRepository, SystemRoleRepository>();
         services.AddScoped<ISecurityEventRepository, SecurityEventRepository>();
 
         return services;

@@ -1,5 +1,6 @@
 using Base.UserManagement.Domain.Mappings;
 using Base.UserManagement.Domain.Services;
+using Base.UserManagement.Domain.Services.Interfaces;
 using Base.UserManagement.EFCore.Data;
 using Base.UserManagement.EFCore.Entities;
 using Base.UserManagement.EFCore.Extensions;
@@ -48,7 +49,7 @@ public static class ServiceCollectionExtensions
         // Add Domain Services
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<ISystemRoleService, SystemRoleService>();
+        services.AddScoped<IRoleService, RoleService>();
 
         return services;
     }

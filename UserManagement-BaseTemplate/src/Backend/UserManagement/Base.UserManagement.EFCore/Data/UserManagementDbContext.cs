@@ -13,7 +13,6 @@ public class UserManagementDbContext : IdentityDbContext<UserEntity, RoleEntity,
 
     public DbSet<UserProfileEntity> UserProfiles { get; set; }
     public DbSet<SecurityEventEntity> SecurityEvents { get; set; }
-    public DbSet<SystemRoleEntity> SystemRoles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -69,18 +68,14 @@ public class UserManagementDbContext : IdentityDbContext<UserEntity, RoleEntity,
             entity.Property(e => e.Details).HasMaxLength(4000);
         });
 
-        // Configure SystemRoleEntity
-        builder.Entity<SystemRoleEntity>(entity =>
+        // Configure RoleEntity
+        builder.Entity<RoleEntity>(entity =>
         {
-            entity.HasKey(e => e.Id);
-            entity.HasIndex(e => e.Name).IsUnique();
-            entity.Property(e => e.Name).HasMaxLength(50).IsRequired();
-            entity.Property(e => e.Description).HasMaxLength(200);
+            entity.Property(e => e.Description).HasMaxLength(500);
         });
 
         // Seed default data
         SeedDefaultRoles(builder);
-        SeedSystemRoles(builder);
     }
 
     private static void SeedDefaultRoles(ModelBuilder builder)
@@ -114,38 +109,5 @@ public class UserManagementDbContext : IdentityDbContext<UserEntity, RoleEntity,
         };
 
         builder.Entity<RoleEntity>().HasData(roles);
-    }
-
-    private static void SeedSystemRoles(ModelBuilder builder)
-    {
-        var systemRoles = new[]
-        {
-            new SystemRoleEntity
-            {
-                Id = 1,
-                Name = "SystemAdmin",
-                Description = "Full system access - can manage all aspects of the system",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            },
-            new SystemRoleEntity
-            {
-                Id = 2,
-                Name = "ContentAdmin",
-                Description = "Content management access - can manage content and moderate users",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            },
-            new SystemRoleEntity
-            {
-                Id = 3,
-                Name = "Member",
-                Description = "Regular user access - standard user permissions",
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            }
-        };
-
-        builder.Entity<SystemRoleEntity>().HasData(systemRoles);
     }
 }

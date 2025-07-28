@@ -1,25 +1,13 @@
 using AutoMapper;
 using Base.UserManagement.Domain.DTOs;
 using Base.UserManagement.Domain.Models;
+using Base.UserManagement.Domain.Services.Interfaces;
 using Base.UserManagement.EFCore.Entities;
-using Base.UserManagement.EFCore.Repositories;
+using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace Base.UserManagement.Domain.Services;
-
-public interface IUserService
-{
-    Task<GetUsersResponse> GetUsersAsync(GetUsersRequest request);
-    Task<UserDto?> GetUserByIdAsync(string id);
-    Task<UserDto?> GetUserByEmailAsync(string email);
-    Task<UserDto> CreateUserAsync(CreateUserRequest request);
-    Task<UserDto> UpdateUserAsync(UpdateUserRequest request);
-    Task<bool> DeleteUserAsync(string id);
-    Task<bool> AssignRoleAsync(AssignRoleRequest request);
-    Task<bool> RemoveRoleAsync(string userId, string roleName);
-    Task<bool> ChangePasswordAsync(string userId, string currentPassword, string newPassword);
-}
 
 public class UserService : IUserService
 {
@@ -137,7 +125,7 @@ public class UserService : IUserService
             }
 
             // Assign default Member role
-            await _userManager.AddToRoleAsync(userEntity, SystemRole.RoleNames.Member);
+            await _userManager.AddToRoleAsync(userEntity, "Member");
 
             var roles = await _userManager.GetRolesAsync(userEntity);
             var user = _mapper.Map<User>(userEntity);

@@ -1,19 +1,9 @@
 using Base.UserManagement.EFCore.Data;
 using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Base.UserManagement.EFCore.Repositories;
-
-public interface IUserRepository
-{
-    Task<UserEntity?> GetByIdAsync(string id);
-    Task<UserEntity?> GetByEmailAsync(string email);
-    Task<IEnumerable<UserEntity>> GetAllAsync(int page = 1, int pageSize = 20, string? role = null);
-    Task<UserEntity> CreateAsync(UserEntity user);
-    Task<UserEntity> UpdateAsync(UserEntity user);
-    Task<bool> DeleteAsync(string id);
-    Task<int> CountAsync(string? role = null);
-}
 
 public class UserRepository : IUserRepository
 {

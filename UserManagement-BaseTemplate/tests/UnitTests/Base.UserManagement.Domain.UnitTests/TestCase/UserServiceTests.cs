@@ -1,6 +1,7 @@
 using Base.UserManagement.Domain.Services;
 using Base.UserManagement.Domain.DTOs.User;
 using Base.UserManagement.Domain.DTOs.Role;
+using Base.UserManagement.Domain.Models;
 using Base.UserManagement.EFCore.Entities.User;
 using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
@@ -9,7 +10,7 @@ using Moq;
 using FluentAssertions;
 using AutoMapper;
 
-namespace Base.UserManagement.Domain.UnitTests;
+namespace Base.UserManagement.Domain.UnitTests.TestCase;
 
 public class UserServiceTests
 {
@@ -25,12 +26,12 @@ public class UserServiceTests
         // Setup UserManager mock
         var mockUserStore = new Mock<IUserStore<UserEntity>>();
         _mockUserManager = new Mock<UserManager<UserEntity>>(
-            mockUserStore.Object, null, null, null, null, null, null, null, null);
+            mockUserStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
         // Setup RoleManager mock
         var mockRoleStore = new Mock<IRoleStore<RoleEntity>>();
         _mockRoleManager = new Mock<RoleManager<RoleEntity>>(
-            mockRoleStore.Object, null, null, null, null);
+            mockRoleStore.Object, null!, null!, null!, null!);
 
         _mockUserRepository = new Mock<IUserRepository>();
         _mockMapper = new Mock<IMapper>();
@@ -61,14 +62,32 @@ public class UserServiceTests
         };
 
         var request = new GetUsersRequest(1, 20, null, null);
-        var response = new GetUsersResponse(userDtos, 2, 1, 20, 1);
 
         _mockUserRepository.Setup(x => x.GetAllAsync(1, 20, null))
             .ReturnsAsync(users);
         _mockUserRepository.Setup(x => x.CountAsync(null))
             .ReturnsAsync(2);
-        _mockMapper.Setup(x => x.Map<IEnumerable<UserDto>>(users))
-            .Returns(userDtos);
+        
+        // Mock GetRolesAsync for each user
+        _mockUserManager.Setup(x => x.GetRolesAsync(It.IsAny<UserEntity>()))
+            .ReturnsAsync(new List<string> { "Member" });
+            
+        // Mock mapper calls
+        _mockMapper.Setup(x => x.Map<User>(It.IsAny<UserEntity>()))
+            .Returns((UserEntity entity) => new User 
+            { 
+                Id = entity.Id, 
+                Email = entity.Email, 
+                FirstName = entity.FirstName, 
+                LastName = entity.LastName,
+                Roles = new List<string> { "Member" }
+            });
+            
+        _mockMapper.Setup(x => x.Map<UserDto>(It.IsAny<User>()))
+            .Returns((User user) => new UserDto(
+                user.Id, user.Email!, user.FirstName!, user.LastName!, 
+                $"{user.FirstName} {user.LastName}", null, null, null, "en", 
+                DateTime.UtcNow, DateTime.UtcNow, true, null, user.Roles ?? new List<string>()));
 
         // Act
         var result = await _userService.GetUsersAsync(request);

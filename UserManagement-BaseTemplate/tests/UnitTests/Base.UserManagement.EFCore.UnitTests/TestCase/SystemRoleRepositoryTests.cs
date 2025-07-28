@@ -4,7 +4,7 @@ using Base.UserManagement.EFCore.Repositories;
 using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
 
-namespace Base.UserManagement.EFCore.UnitTests;
+namespace Base.UserManagement.EFCore.UnitTests.TestCase;
 
 public class SystemRoleRepositoryTests : IDisposable
 {

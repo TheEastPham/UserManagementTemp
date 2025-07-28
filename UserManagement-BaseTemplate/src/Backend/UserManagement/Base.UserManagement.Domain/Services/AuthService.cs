@@ -27,6 +27,7 @@ public class AuthService : IAuthService
     private readonly ILogger<AuthService> _logger;
     private readonly IEmailService _emailService;
     private readonly IEmailVerificationTokenRepository _tokenRepository;
+    private readonly ITokenGeneratorService _tokenGenerator;
 
     public AuthService(
         UserManager<UserEntity> userManager,
@@ -35,7 +36,8 @@ public class AuthService : IAuthService
         IMapper mapper,
         ILogger<AuthService> logger,
         IEmailService emailService,
-        IEmailVerificationTokenRepository tokenRepository)
+        IEmailVerificationTokenRepository tokenRepository,
+        ITokenGeneratorService tokenGenerator)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -44,6 +46,7 @@ public class AuthService : IAuthService
         _logger = logger;
         _emailService = emailService;
         _tokenRepository = tokenRepository;
+        _tokenGenerator = tokenGenerator;
     }
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request)
@@ -309,7 +312,7 @@ public class AuthService : IAuthService
         try
         {
             // Generate verification token
-            var verificationToken = GenerateVerificationToken();
+            var verificationToken = _tokenGenerator.GenerateVerificationToken(user.Email!);
             
             var tokenEntity = new EmailVerificationTokenEntity
             {
@@ -332,12 +335,5 @@ public class AuthService : IAuthService
             _logger.LogError(ex, "Error generating and sending verification email for user {UserId}", user.Id);
             throw;
         }
-    }
-
-    private string GenerateVerificationToken()
-    {
-        // Generate 6-digit verification code
-        var random = new Random();
-        return random.Next(100000, 999999).ToString();
     }
 }

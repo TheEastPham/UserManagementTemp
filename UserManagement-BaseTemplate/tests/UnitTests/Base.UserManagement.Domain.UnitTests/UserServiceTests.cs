@@ -1,8 +1,10 @@
 using Base.UserManagement.Domain.Services;
-using Base.UserManagement.Domain.DTOs;
-using Base.UserManagement.EFCore.Entities;
-using Base.UserManagement.EFCore.Repositories;
+using Base.UserManagement.Domain.DTOs.User;
+using Base.UserManagement.Domain.DTOs.Role;
+using Base.UserManagement.EFCore.Entities.User;
+using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 using Moq;
 using FluentAssertions;
 using AutoMapper;
@@ -12,28 +14,38 @@ namespace Base.UserManagement.Domain.UnitTests;
 public class UserServiceTests
 {
     private readonly Mock<UserManager<UserEntity>> _mockUserManager;
+    private readonly Mock<RoleManager<RoleEntity>> _mockRoleManager;
     private readonly Mock<IUserRepository> _mockUserRepository;
     private readonly Mock<IMapper> _mockMapper;
+    private readonly Mock<ILogger<UserService>> _mockLogger;
     private readonly UserService _userService;
 
     public UserServiceTests()
     {
         // Setup UserManager mock
-        var mockStore = new Mock<IUserStore<UserEntity>>();
+        var mockUserStore = new Mock<IUserStore<UserEntity>>();
         _mockUserManager = new Mock<UserManager<UserEntity>>(
-            mockStore.Object, null, null, null, null, null, null, null, null);
+            mockUserStore.Object, null, null, null, null, null, null, null, null);
+
+        // Setup RoleManager mock
+        var mockRoleStore = new Mock<IRoleStore<RoleEntity>>();
+        _mockRoleManager = new Mock<RoleManager<RoleEntity>>(
+            mockRoleStore.Object, null, null, null, null);
 
         _mockUserRepository = new Mock<IUserRepository>();
         _mockMapper = new Mock<IMapper>();
+        _mockLogger = new Mock<ILogger<UserService>>();
 
         _userService = new UserService(
-            _mockUserManager.Object,
             _mockUserRepository.Object,
-            _mockMapper.Object);
+            _mockUserManager.Object,
+            _mockRoleManager.Object,
+            _mockMapper.Object,
+            _mockLogger.Object);
     }
 
     [Fact]
-    public async Task GetAllUsersAsync_ShouldReturnMappedUsers()
+    public async Task GetUsersAsync_ShouldReturnMappedUsers()
     {
         // Arrange
         var users = new List<UserEntity>
@@ -44,22 +56,27 @@ public class UserServiceTests
 
         var userDtos = new List<UserDto>
         {
-            new UserDto { Id = "1", FirstName = "John", LastName = "Doe", Email = "john@test.com" },
-            new UserDto { Id = "2", FirstName = "Jane", LastName = "Smith", Email = "jane@test.com" }
+            new UserDto("1", "john@test.com", "John", "Doe", "John Doe", null, null, null, "en", DateTime.UtcNow, DateTime.UtcNow, true, null, new List<string>()),
+            new UserDto("2", "jane@test.com", "Jane", "Smith", "Jane Smith", null, null, null, "en", DateTime.UtcNow, DateTime.UtcNow, true, null, new List<string>())
         };
 
-        _mockUserRepository.Setup(x => x.GetAllAsync())
+        var request = new GetUsersRequest(1, 20, null, null);
+        var response = new GetUsersResponse(userDtos, 2, 1, 20, 1);
+
+        _mockUserRepository.Setup(x => x.GetAllAsync(1, 20, null))
             .ReturnsAsync(users);
+        _mockUserRepository.Setup(x => x.CountAsync(null))
+            .ReturnsAsync(2);
         _mockMapper.Setup(x => x.Map<IEnumerable<UserDto>>(users))
             .Returns(userDtos);
 
         // Act
-        var result = await _userService.GetAllUsersAsync();
+        var result = await _userService.GetUsersAsync(request);
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().HaveCount(2);
-        result.Should().BeEquivalentTo(userDtos);
+        result.Users.Should().HaveCount(2);
+        result.TotalCount.Should().Be(2);
     }
 
     [Fact]
@@ -68,7 +85,7 @@ public class UserServiceTests
         // Arrange
         var userId = "1";
         var user = new UserEntity { Id = userId, FirstName = "John", LastName = "Doe", Email = "john@test.com" };
-        var userDto = new UserDto { Id = userId, FirstName = "John", LastName = "Doe", Email = "john@test.com" };
+        var userDto = new UserDto(userId, "john@test.com", "John", "Doe", "John Doe", null, null, null, "en", DateTime.UtcNow, DateTime.UtcNow, true, null, new List<string>());
 
         _mockUserRepository.Setup(x => x.GetByIdAsync(userId))
             .ReturnsAsync(user);
@@ -104,9 +121,9 @@ public class UserServiceTests
         // Arrange
         var createRequest = new CreateUserRequest(
             Email: "test@example.com",
+            Password: "Password123!",
             FirstName: "Test",
             LastName: "User",
-            PhoneNumber: "1234567890",
             Language: "en-US"
         );
 
@@ -116,24 +133,26 @@ public class UserServiceTests
             UserName = createRequest.Email,
             FirstName = createRequest.FirstName,
             LastName = createRequest.LastName,
-            PhoneNumber = createRequest.PhoneNumber,
             Language = createRequest.Language
         };
 
+        var userDto = new UserDto("1", createRequest.Email, createRequest.FirstName, createRequest.LastName, "Test User", null, null, null, createRequest.Language, DateTime.UtcNow, DateTime.UtcNow, true, null, new List<string>());
+
         _mockUserManager.Setup(x => x.FindByEmailAsync(createRequest.Email))
             .ReturnsAsync((UserEntity?)null);
-        _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<UserEntity>()))
+        _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<UserEntity>(), createRequest.Password))
             .ReturnsAsync(IdentityResult.Success);
         _mockMapper.Setup(x => x.Map<UserEntity>(createRequest))
             .Returns(user);
+        _mockMapper.Setup(x => x.Map<UserDto>(It.IsAny<UserEntity>()))
+            .Returns(userDto);
 
         // Act
         var result = await _userService.CreateUserAsync(createRequest);
 
         // Assert
         result.Should().NotBeNull();
-        result.Success.Should().BeTrue();
-        result.Message.Should().Be("User created successfully");
+        result.Should().BeEquivalentTo(userDto);
     }
 
     [Fact]
@@ -142,23 +161,20 @@ public class UserServiceTests
         // Arrange
         var createRequest = new CreateUserRequest(
             Email: "existing@example.com",
+            Password: "Password123!",
             FirstName: "Test",
             LastName: "User",
-            PhoneNumber: "1234567890",
             Language: "en-US"
         );
 
         var existingUser = new UserEntity { Email = createRequest.Email };
 
-        _mockUserManager.Setup(x => x.FindByEmailAsync(createRequest.Email))
-            .ReturnsAsync(existingUser);
+        _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<UserEntity>(), createRequest.Password))
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "Email already exists" }));
 
-        // Act
-        var result = await _userService.CreateUserAsync(createRequest);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Success.Should().BeFalse();
-        result.Message.Should().Be("Email already exists");
+        // Act & Assert
+        var act = async () => await _userService.CreateUserAsync(createRequest);
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("Failed to create user: Email already exists");
     }
 }

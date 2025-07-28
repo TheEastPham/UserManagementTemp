@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
         // Add Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<ISecurityEventRepository, SecurityEventRepository>();
+        services.AddScoped<IEmailVerificationTokenRepository, EmailVerificationTokenRepository>();
 
         return services;
     }

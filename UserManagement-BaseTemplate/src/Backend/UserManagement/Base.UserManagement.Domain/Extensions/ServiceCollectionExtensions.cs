@@ -2,7 +2,7 @@ using Base.UserManagement.Domain.Mappings;
 using Base.UserManagement.Domain.Services;
 using Base.UserManagement.Domain.Services.Interfaces;
 using Base.UserManagement.EFCore.Data;
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.EFCore.Entities.User;
 using Base.UserManagement.EFCore.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
@@ -50,6 +50,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRoleService, RoleService>();
+        services.AddScoped<IEmailService, EmailService>();
 
         return services;
     }

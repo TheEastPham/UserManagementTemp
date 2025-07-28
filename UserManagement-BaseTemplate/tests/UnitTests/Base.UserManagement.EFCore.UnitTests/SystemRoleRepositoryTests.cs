@@ -1,5 +1,5 @@
 using Base.UserManagement.EFCore.Data;
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.EFCore.Entities.User;
 using Base.UserManagement.EFCore.Repositories;
 using Microsoft.EntityFrameworkCore;
 using FluentAssertions;

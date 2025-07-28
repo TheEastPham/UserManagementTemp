@@ -1,8 +1,9 @@
 using AutoMapper;
-using Base.UserManagement.Domain.DTOs;
+using Base.UserManagement.Domain.DTOs.User;
+using Base.UserManagement.Domain.DTOs.Role;
 using Base.UserManagement.Domain.Models;
 using Base.UserManagement.Domain.Services.Interfaces;
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.EFCore.Entities.User;
 using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;

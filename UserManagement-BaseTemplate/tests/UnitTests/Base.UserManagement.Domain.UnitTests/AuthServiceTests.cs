@@ -1,8 +1,13 @@
 using Base.UserManagement.Domain.Services;
-using Base.UserManagement.Domain.DTOs;
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.Domain.DTOs.Auth;
+using Base.UserManagement.Domain.DTOs.Account;
+using Base.UserManagement.Domain.Services.Interfaces;
+using Base.UserManagement.EFCore.Entities.User;
+using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using AutoMapper;
 using Moq;
 using FluentAssertions;
 
@@ -13,6 +18,10 @@ public class AuthServiceTests
     private readonly Mock<UserManager<UserEntity>> _mockUserManager;
     private readonly Mock<SignInManager<UserEntity>> _mockSignInManager;
     private readonly Mock<IConfiguration> _mockConfiguration;
+    private readonly Mock<IMapper> _mockMapper;
+    private readonly Mock<ILogger<AuthService>> _mockLogger;
+    private readonly Mock<IEmailService> _mockEmailService;
+    private readonly Mock<IEmailVerificationTokenRepository> _mockTokenRepository;
     private readonly AuthService _authService;
 
     public AuthServiceTests()
@@ -38,10 +47,19 @@ public class AuthServiceTests
         
         _mockConfiguration.Setup(x => x.GetSection("JwtSettings")).Returns(jwtSection.Object);
 
+        _mockMapper = new Mock<IMapper>();
+        _mockLogger = new Mock<ILogger<AuthService>>();
+        _mockEmailService = new Mock<IEmailService>();
+        _mockTokenRepository = new Mock<IEmailVerificationTokenRepository>();
+
         _authService = new AuthService(
             _mockUserManager.Object,
             _mockSignInManager.Object,
-            _mockConfiguration.Object);
+            _mockConfiguration.Object,
+            _mockMapper.Object,
+            _mockLogger.Object,
+            _mockEmailService.Object,
+            _mockTokenRepository.Object);
     }
 
     [Fact]
@@ -71,9 +89,9 @@ public class AuthServiceTests
         // Assert
         result.Should().NotBeNull();
         result.Success.Should().BeTrue();
-        result.Token.Should().NotBeNull();
-        result.Token!.AccessToken.Should().NotBeNullOrEmpty();
-        result.Token.RefreshToken.Should().NotBeNullOrEmpty();
+        result.AccessToken.Should().NotBeNullOrEmpty();
+        result.RefreshToken.Should().NotBeNullOrEmpty();
+        result.ExpiresAt.Should().BeAfter(DateTime.UtcNow);
     }
 
     [Fact]

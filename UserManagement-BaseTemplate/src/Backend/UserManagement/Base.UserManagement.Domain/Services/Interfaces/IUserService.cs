@@ -1,4 +1,5 @@
-using Base.UserManagement.Domain.DTOs;
+using Base.UserManagement.Domain.DTOs.User;
+using Base.UserManagement.Domain.DTOs.Role;
 
 namespace Base.UserManagement.Domain.Services.Interfaces;
 

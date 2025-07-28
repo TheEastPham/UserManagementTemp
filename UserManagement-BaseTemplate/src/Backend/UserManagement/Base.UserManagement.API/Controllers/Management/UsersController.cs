@@ -1,4 +1,5 @@
-using Base.UserManagement.Domain.DTOs;
+using Base.UserManagement.Domain.DTOs.User;
+using Base.UserManagement.Domain.DTOs.Role;
 using Base.UserManagement.Domain.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

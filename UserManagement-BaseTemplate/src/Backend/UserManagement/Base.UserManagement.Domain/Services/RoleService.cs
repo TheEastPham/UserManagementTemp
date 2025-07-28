@@ -1,6 +1,6 @@
-using Base.UserManagement.Domain.DTOs;
+using Base.UserManagement.Domain.DTOs.Role;
 using Base.UserManagement.Domain.Services.Interfaces;
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.EFCore.Entities.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;

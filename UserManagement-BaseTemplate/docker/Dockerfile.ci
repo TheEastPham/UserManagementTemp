@@ -1,0 +1,49 @@
+# ================================
+# CI Test Dockerfile
+# ================================
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS ci-test
+WORKDIR /app
+
+# Copy solution and all project files (bao gồm cả test)
+COPY src/Backend/Base.sln ./src/Backend/
+COPY src/Backend/UserManagement/Base.UserManagement.API/Base.UserManagement.API.csproj ./src/Backend/UserManagement/Base.UserManagement.API/
+COPY src/Backend/UserManagement/Base.UserManagement.Domain/Base.UserManagement.Domain.csproj ./src/Backend/UserManagement/Base.UserManagement.Domain/
+COPY src/Backend/UserManagement/Base.UserManagement.EFCore/Base.UserManagement.EFCore.csproj ./src/Backend/UserManagement/Base.UserManagement.EFCore/
+COPY src/Backend/Gateways/Base.ApiGateway/Base.ApiGateway.csproj ./src/Backend/Gateways/Base.ApiGateway/
+COPY tests/UnitTests/Base.UserManagement.Domain.UnitTests/Base.UserManagement.Domain.UnitTests.csproj ./tests/UnitTests/Base.UserManagement.Domain.UnitTests/
+COPY tests/IntegrationTests/Base.UserManagement.IntegrationTests/Base.UserManagement.IntegrationTests.csproj ./tests/IntegrationTests/Base.UserManagement.IntegrationTests/
+
+COPY tests/UnitTests/Base.UserManagement.EFCore.UnitTests/Base.UserManagement.EFCore.UnitTests.csproj ./tests/UnitTests/Base.UserManagement.EFCore.UnitTests/
+
+COPY src/Backend/NuGet.Config ./src/Backend/NuGet.Config
+
+# Restore dependencies
+WORKDIR /app/src/Backend
+ENV NUGET_FALLBACK_PACKAGES=""
+ENV NUGET_PACKAGES=/root/.nuget/packages
+RUN dotnet nuget locals all --clear
+RUN mkdir -p /root/.config/NuGet && cp /app/src/Backend/NuGet.Config /root/.config/NuGet/NuGet.Config
+
+# Xóa cache thư mục packages nếu tồn tại
+RUN rm -rf /root/.nuget/packages || true
+
+COPY src/Backend/NuGet.Config ./src/Backend/NuGet.Config
+RUN dotnet restore Base.sln --configfile NuGet.Config -p:RestoreFallbackFolders=
+
+# Copy all source code (bao gồm cả test)
+COPY src/Backend/ ./
+COPY tests/ ./tests/
+
+# Build all
+RUN dotnet build Base.sln --configuration Release --no-restore --configfile NuGet.Config -p:RestoreFallbackFolders=
+
+# Run Unit Tests
+RUN dotnet test ../tests/UnitTests --no-build --verbosity normal --configfile ../src/Backend/NuGet.Config
+
+# Run Integration Tests
+RUN dotnet test ../tests/IntegrationTests --no-build --verbosity normal --configfile ../src/Backend/NuGet.Config
+
+# ================================
+# No runtime stage, chỉ dùng cho CI test
+# ================================
+

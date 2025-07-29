@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using AutoMapper;
+using Base.UserManagement.Domain.UnitTests.Testable;
 using Moq;
 using FluentAssertions;
 

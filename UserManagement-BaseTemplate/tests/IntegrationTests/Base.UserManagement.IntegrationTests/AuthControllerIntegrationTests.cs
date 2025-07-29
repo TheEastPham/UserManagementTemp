@@ -147,7 +147,7 @@ public class AuthControllerIntegrationTests : IClassFixture<WebApplicationFactor
 
         loginResult.Should().NotBeNull();
         loginResult!.Success.Should().BeTrue();
-        loginResult.Token.Should().NotBeNull();
-        loginResult.Token!.AccessToken.Should().NotBeNullOrEmpty();
+        loginResult.AccessToken.Should().NotBeNull();
+        loginResult.AccessToken!.Should().NotBeNullOrEmpty();
     }
 }

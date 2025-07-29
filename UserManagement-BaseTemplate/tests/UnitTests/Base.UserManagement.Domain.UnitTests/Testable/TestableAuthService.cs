@@ -1,15 +1,15 @@
-using Base.UserManagement.Domain.Services;
-using Base.UserManagement.Domain.DTOs.Auth;
+using AutoMapper;
 using Base.UserManagement.Domain.DTOs.Account;
+using Base.UserManagement.Domain.DTOs.Auth;
+using Base.UserManagement.Domain.Services;
 using Base.UserManagement.Domain.Services.Interfaces;
 using Base.UserManagement.EFCore.Entities.User;
 using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using AutoMapper;
 
-namespace Base.UserManagement.Domain.UnitTests;
+namespace Base.UserManagement.Domain.UnitTests.Testable;
 
 // Testable version of AuthService that doesn't require SignInManager
 public class TestableAuthService

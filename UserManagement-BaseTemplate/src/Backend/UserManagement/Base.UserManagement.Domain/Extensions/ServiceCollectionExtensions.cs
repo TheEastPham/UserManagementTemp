@@ -51,6 +51,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IRoleService, RoleService>();
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<ITokenGeneratorService, TokenGeneratorService>();
 
         return services;
     }

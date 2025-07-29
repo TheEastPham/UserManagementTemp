@@ -1,4 +1,4 @@
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.EFCore.Entities.Security;
 
 namespace Base.UserManagement.EFCore.Repositories.Interfaces;
 

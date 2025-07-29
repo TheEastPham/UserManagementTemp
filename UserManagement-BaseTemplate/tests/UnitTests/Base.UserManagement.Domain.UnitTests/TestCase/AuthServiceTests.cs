@@ -1,32 +1,37 @@
 using Base.UserManagement.Domain.Services;
-using Base.UserManagement.Domain.DTOs;
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.Domain.DTOs.Auth;
+using Base.UserManagement.Domain.DTOs.Account;
+using Base.UserManagement.Domain.Services.Interfaces;
+using Base.UserManagement.EFCore.Entities.User;
+using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using AutoMapper;
 using Moq;
 using FluentAssertions;
 
-namespace Base.UserManagement.Domain.UnitTests;
+namespace Base.UserManagement.Domain.UnitTests.TestCase;
 
 public class AuthServiceTests
 {
     private readonly Mock<UserManager<UserEntity>> _mockUserManager;
-    private readonly Mock<SignInManager<UserEntity>> _mockSignInManager;
     private readonly Mock<IConfiguration> _mockConfiguration;
-    private readonly AuthService _authService;
+    private readonly Mock<IMapper> _mockMapper;
+    private readonly Mock<ILogger<AuthService>> _mockLogger;
+    private readonly Mock<IEmailService> _mockEmailService;
+    private readonly Mock<IEmailVerificationTokenRepository> _mockTokenRepository;
+    private readonly Mock<ITokenGeneratorService> _mockTokenGenerator;
+    private readonly TestableAuthService _authService;
 
     public AuthServiceTests()
     {
         // Setup UserManager mock
         var mockUserStore = new Mock<IUserStore<UserEntity>>();
         _mockUserManager = new Mock<UserManager<UserEntity>>(
-            mockUserStore.Object, null, null, null, null, null, null, null, null);
+            mockUserStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
-        // Setup SignInManager mock
-        var mockHttpContextAccessor = new Mock<Microsoft.AspNetCore.Http.IHttpContextAccessor>();
-        var mockClaimsFactory = new Mock<IUserClaimsPrincipalFactory<UserEntity>>();
-        _mockSignInManager = new Mock<SignInManager<UserEntity>>(
-            _mockUserManager.Object, mockHttpContextAccessor.Object, mockClaimsFactory.Object, null, null, null, null);
+        // Setup SignInManager mock (removed for TestableAuthService)
 
         // Setup Configuration mock
         _mockConfiguration = new Mock<IConfiguration>();
@@ -38,10 +43,20 @@ public class AuthServiceTests
         
         _mockConfiguration.Setup(x => x.GetSection("JwtSettings")).Returns(jwtSection.Object);
 
-        _authService = new AuthService(
+        _mockMapper = new Mock<IMapper>();
+        _mockLogger = new Mock<ILogger<AuthService>>();
+        _mockEmailService = new Mock<IEmailService>();
+        _mockTokenRepository = new Mock<IEmailVerificationTokenRepository>();
+        _mockTokenGenerator = new Mock<ITokenGeneratorService>();
+
+        _authService = new TestableAuthService(
             _mockUserManager.Object,
-            _mockSignInManager.Object,
-            _mockConfiguration.Object);
+            _mockConfiguration.Object,
+            _mockMapper.Object,
+            _mockLogger.Object,
+            _mockEmailService.Object,
+            _mockTokenRepository.Object,
+            _mockTokenGenerator.Object);
     }
 
     [Fact]
@@ -60,8 +75,8 @@ public class AuthServiceTests
 
         _mockUserManager.Setup(x => x.FindByEmailAsync(loginRequest.Email))
             .ReturnsAsync(user);
-        _mockSignInManager.Setup(x => x.CheckPasswordSignInAsync(user, loginRequest.Password, false))
-            .ReturnsAsync(SignInResult.Success);
+        _mockUserManager.Setup(x => x.CheckPasswordAsync(user, loginRequest.Password))
+            .ReturnsAsync(true);
         _mockUserManager.Setup(x => x.GetRolesAsync(user))
             .ReturnsAsync(new List<string> { "Member" });
 
@@ -71,9 +86,9 @@ public class AuthServiceTests
         // Assert
         result.Should().NotBeNull();
         result.Success.Should().BeTrue();
-        result.Token.Should().NotBeNull();
-        result.Token!.AccessToken.Should().NotBeNullOrEmpty();
-        result.Token.RefreshToken.Should().NotBeNullOrEmpty();
+        result.AccessToken.Should().NotBeNullOrEmpty();
+        result.RefreshToken.Should().NotBeNullOrEmpty();
+        result.ExpiresAt.Should().BeAfter(DateTime.UtcNow);
     }
 
     [Fact]
@@ -92,7 +107,7 @@ public class AuthServiceTests
         result.Should().NotBeNull();
         result.Success.Should().BeFalse();
         result.Message.Should().Be("Invalid email or password");
-        result.Token.Should().BeNull();
+        result.AccessToken.Should().BeNull();
     }
 
     [Fact]
@@ -109,8 +124,8 @@ public class AuthServiceTests
 
         _mockUserManager.Setup(x => x.FindByEmailAsync(loginRequest.Email))
             .ReturnsAsync(user);
-        _mockSignInManager.Setup(x => x.CheckPasswordSignInAsync(user, loginRequest.Password, false))
-            .ReturnsAsync(SignInResult.Failed);
+        _mockUserManager.Setup(x => x.CheckPasswordAsync(user, loginRequest.Password))
+            .ReturnsAsync(false);
 
         // Act
         var result = await _authService.LoginAsync(loginRequest);
@@ -119,7 +134,7 @@ public class AuthServiceTests
         result.Should().NotBeNull();
         result.Success.Should().BeFalse();
         result.Message.Should().Be("Invalid email or password");
-        result.Token.Should().BeNull();
+        result.AccessToken.Should().BeNull();
     }
 
     [Fact]

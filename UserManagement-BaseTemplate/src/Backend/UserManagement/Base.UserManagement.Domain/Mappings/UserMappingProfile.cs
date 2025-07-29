@@ -1,7 +1,11 @@
 using AutoMapper;
-using Base.UserManagement.Domain.DTOs;
+using Base.UserManagement.Domain.DTOs.User;
+using Base.UserManagement.Domain.DTOs.Role;
+using Base.UserManagement.Domain.DTOs.Security;
+using Base.UserManagement.Domain.DTOs.Account;
 using Base.UserManagement.Domain.Models;
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.EFCore.Entities.User;
+using Base.UserManagement.EFCore.Entities.Security;
 using System.Text.Json;
 
 namespace Base.UserManagement.Domain.Mappings;

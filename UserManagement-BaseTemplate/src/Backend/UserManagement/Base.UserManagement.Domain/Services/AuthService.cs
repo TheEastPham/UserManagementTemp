@@ -1,8 +1,12 @@
 using AutoMapper;
-using Base.UserManagement.Domain.DTOs;
+using Base.UserManagement.Domain.DTOs.Auth;
+using Base.UserManagement.Domain.DTOs.Account;
+using Base.UserManagement.Domain.DTOs.User;
 using Base.UserManagement.Domain.Models;
 using Base.UserManagement.Domain.Services.Interfaces;
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.EFCore.Entities.User;
+using Base.UserManagement.EFCore.Entities.Security;
+using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -21,19 +25,28 @@ public class AuthService : IAuthService
     private readonly IConfiguration _configuration;
     private readonly IMapper _mapper;
     private readonly ILogger<AuthService> _logger;
+    private readonly IEmailService _emailService;
+    private readonly IEmailVerificationTokenRepository _tokenRepository;
+    private readonly ITokenGeneratorService _tokenGenerator;
 
     public AuthService(
         UserManager<UserEntity> userManager,
         SignInManager<UserEntity> signInManager,
         IConfiguration configuration,
         IMapper mapper,
-        ILogger<AuthService> logger)
+        ILogger<AuthService> logger,
+        IEmailService emailService,
+        IEmailVerificationTokenRepository tokenRepository,
+        ITokenGeneratorService tokenGenerator)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _configuration = configuration;
         _mapper = mapper;
         _logger = logger;
+        _emailService = emailService;
+        _tokenRepository = tokenRepository;
+        _tokenGenerator = tokenGenerator;
     }
 
     public async Task<LoginResponse> LoginAsync(LoginRequest request)
@@ -44,6 +57,12 @@ public class AuthService : IAuthService
             if (user == null || !user.IsActive)
             {
                 return new LoginResponse(false, "Invalid email or password");
+            }
+
+            // Check if email is confirmed
+            if (!user.EmailConfirmed)
+            {
+                return new LoginResponse(false, "Email not verified. Please check your email and verify your account.");
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
@@ -149,6 +168,7 @@ public class AuthService : IAuthService
             {
                 UserName = request.Email,
                 Email = request.Email,
+                EmailConfirmed = false, // Set to false initially
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Language = request.Language,
@@ -162,7 +182,11 @@ public class AuthService : IAuthService
             {
                 // Assign default Member role
                 await _userManager.AddToRoleAsync(user, "Member");
-                return new RegisterResponse(true, "Registration successful", user.Id);
+                
+                // Generate verification token and send email
+                await GenerateAndSendVerificationEmailAsync(user);
+                
+                return new RegisterResponse(true, "Registration successful. Please check your email to verify your account.", user.Id, true);
             }
 
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
@@ -209,5 +233,107 @@ public class AuthService : IAuthService
         var refreshToken = Guid.NewGuid().ToString();
 
         return Task.FromResult(new TokenResponse(accessToken, refreshToken, expiresAt));
+    }
+
+    public async Task<VerifyEmailResponse> VerifyEmailAsync(VerifyEmailRequest request)
+    {
+        try
+        {
+            var token = await _tokenRepository.GetByTokenAsync(request.Token);
+            if (token == null)
+            {
+                return new VerifyEmailResponse(false, "Invalid or expired verification token");
+            }
+
+            if (token.Email != request.Email)
+            {
+                return new VerifyEmailResponse(false, "Email does not match the token");
+            }
+
+            var user = await _userManager.FindByIdAsync(token.UserId);
+            if (user == null)
+            {
+                return new VerifyEmailResponse(false, "User not found");
+            }
+
+            // Update user email confirmed status
+            user.EmailConfirmed = true;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _userManager.UpdateAsync(user);
+
+            // Mark token as used
+            await _tokenRepository.MarkAsUsedAsync(token.Id);
+
+            // Send welcome email
+            await _emailService.SendWelcomeEmailAsync(user.Email!, user.FirstName ?? "User");
+
+            _logger.LogInformation("Email verified successfully for user {UserId}", user.Id);
+            return new VerifyEmailResponse(true, "Email verified successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error verifying email for token {Token}", request.Token);
+            return new VerifyEmailResponse(false, "An error occurred while verifying email");
+        }
+    }
+
+    public async Task<ResendVerificationResponse> ResendVerificationEmailAsync(ResendVerificationRequest request)
+    {
+        try
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return new ResendVerificationResponse(false, "User not found");
+            }
+
+            if (user.EmailConfirmed)
+            {
+                return new ResendVerificationResponse(false, "Email is already verified");
+            }
+
+            // Delete existing tokens for this user
+            await _tokenRepository.DeleteByUserIdAsync(user.Id);
+
+            // Generate and send new verification email
+            await GenerateAndSendVerificationEmailAsync(user);
+
+            return new ResendVerificationResponse(true, "Verification email sent successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error resending verification email to {Email}", request.Email);
+            return new ResendVerificationResponse(false, "An error occurred while sending verification email");
+        }
+    }
+
+    private async Task GenerateAndSendVerificationEmailAsync(UserEntity user)
+    {
+        try
+        {
+            // Generate verification token
+            var verificationToken = _tokenGenerator.GenerateVerificationToken(user.Email!);
+            
+            var tokenEntity = new EmailVerificationTokenEntity
+            {
+                UserId = user.Id,
+                Token = verificationToken,
+                Email = user.Email!,
+                CreatedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(30)
+            };
+
+            await _tokenRepository.CreateAsync(tokenEntity);
+
+            // Send verification email
+            await _emailService.SendEmailVerificationAsync(user.Email!, user.FirstName ?? "User", verificationToken);
+
+            _logger.LogInformation("Verification email sent to {Email}", user.Email);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating and sending verification email for user {UserId}", user.Id);
+            throw;
+        }
     }
 }

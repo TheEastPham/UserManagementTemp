@@ -14,20 +14,17 @@ public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
     private readonly UserManager<UserEntity> _userManager;
-    private readonly RoleManager<RoleEntity> _roleManager;
     private readonly IMapper _mapper;
     private readonly ILogger<UserService> _logger;
 
     public UserService(
         IUserRepository userRepository,
         UserManager<UserEntity> userManager,
-        RoleManager<RoleEntity> roleManager,
         IMapper mapper,
         ILogger<UserService> logger)
     {
         _userRepository = userRepository;
         _userManager = userManager;
-        _roleManager = roleManager;
         _mapper = mapper;
         _logger = logger;
     }
@@ -44,7 +41,7 @@ public class UserService : IUserService
             {
                 var roles = await _userManager.GetRolesAsync(userEntity);
                 var user = _mapper.Map<User>(userEntity);
-                user.Roles = roles.ToList();
+                user.Roles = roles;
                 
                 var userDto = _mapper.Map<UserDto>(user);
                 users.Add(userDto);
@@ -103,6 +100,7 @@ public class UserService : IUserService
 
     public async Task<UserDto> CreateUserAsync(CreateUserRequest request)
     {
+       ValidateArgument(request);
         try
         {
             var userEntity = new UserEntity
@@ -116,22 +114,19 @@ public class UserService : IUserService
                 Language = request.Language,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                IsActive = true
+                IsActive = false
             };
 
             var result = await _userManager.CreateAsync(userEntity, request.Password);
-            if (!result.Succeeded)
+            if (result == null || !result.Succeeded)
             {
-                throw new InvalidOperationException($"Failed to create user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                var errors = result?.Errors?.Select(e => e.Description) ?? new List<string> { "Unknown error occurred." };
+                throw new InvalidOperationException($"Failed to create user: {string.Join(", ", errors)}");
             }
 
             // Assign default Member role
-            await _userManager.AddToRoleAsync(userEntity, "Member");
-
-            var roles = await _userManager.GetRolesAsync(userEntity);
+            //await _roleManager.AddToRoleAsync(userEntity, "Member");
             var user = _mapper.Map<User>(userEntity);
-            user.Roles = roles.ToList();
-
             return _mapper.Map<UserDto>(user);
         }
         catch (Exception ex)
@@ -158,13 +153,13 @@ public class UserService : IUserService
             userEntity.TimeZone = request.TimeZone;
             userEntity.Language = request.Language;
             userEntity.UpdatedAt = DateTime.UtcNow;
-            
+
             // Update phone number and email if provided
             if (!string.IsNullOrEmpty(request.PhoneNumber))
             {
                 userEntity.PhoneNumber = request.PhoneNumber;
             }
-            
+
             if (!string.IsNullOrEmpty(request.Email) && request.Email != userEntity.Email)
             {
                 // Email update should be handled carefully - may require verification
@@ -259,5 +254,49 @@ public class UserService : IUserService
             _logger.LogError(ex, "Error changing password for user {UserId}", userId);
             throw;
         }
+    }
+    
+    private void ValidateArgument(CreateUserRequest request)
+    {
+        if (request == null)
+            throw new ArgumentException(nameof(request));
+        if (string.IsNullOrEmpty(request.Email))
+            throw new ArgumentException(nameof(request.Email));
+        if (string.IsNullOrEmpty(request.Password))
+            throw new ArgumentException(nameof(request.Password));
+        if (string.IsNullOrEmpty(request.FirstName))
+            throw new ArgumentException(nameof(request.FirstName));
+        if (request.LastName == null)
+            throw new ArgumentException(nameof(request.LastName));
+    }
+
+    private User Generate(UserEntity entity)
+    {
+        return new User
+        {
+            Id = entity.Id,
+            Email = entity.Email,
+            FirstName = entity.FirstName,
+            LastName = entity.LastName,
+            DateOfBirth = entity.DateOfBirth,
+            Avatar = entity.Avatar,
+            TimeZone = entity.TimeZone,
+            Language = entity.Language,
+            CreatedAt = entity.CreatedAt,
+            UpdatedAt = entity.UpdatedAt,
+            IsActive = entity.IsActive,
+            LastLoginAt = entity.LastLoginAt,
+            Profile = entity.Profile != null ? new UserProfile
+            {
+                Id = entity.Profile.Id,
+                UserId = entity.Profile.UserId,
+                PhoneNumber = entity.Profile.PhoneNumber,
+                Address = entity.Profile.Address,
+                Bio = entity.Profile.Bio,
+                Preferences = new Dictionary<string, object>(),
+                UpdatedAt = entity.Profile.UpdatedAt
+            } : null,
+            Roles = new List<string>() 
+        };
     }
 }

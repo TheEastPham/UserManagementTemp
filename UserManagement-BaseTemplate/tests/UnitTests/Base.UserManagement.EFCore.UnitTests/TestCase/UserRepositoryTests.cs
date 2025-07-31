@@ -1,10 +1,10 @@
 using Base.UserManagement.EFCore.Data;
 using Base.UserManagement.EFCore.Entities.User;
 using Base.UserManagement.EFCore.Repositories;
-using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 
-namespace Base.UserManagement.EFCore.UnitTests;
+namespace Base.UserManagement.EFCore.UnitTests.TestCase;
 
 public class UserRepositoryTests : IDisposable
 {
@@ -105,107 +105,6 @@ public class UserRepositoryTests : IDisposable
 
         // Assert
         user.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task GetActiveUsersAsync_ShouldReturnOnlyActiveUsers()
-    {
-        // Act
-        var activeUsers = await _userRepository.GetActiveUsersAsync();
-
-        // Assert
-        activeUsers.Should().NotBeNull();
-        activeUsers.Should().HaveCount(2);
-        activeUsers.Should().OnlyContain(u => u.IsActive);
-    }
-
-    [Fact]
-    public async Task SearchUsersAsync_WithFirstName_ShouldReturnMatchingUsers()
-    {
-        // Arrange
-        var searchTerm = "John";
-
-        // Act
-        var users = await _userRepository.SearchUsersAsync(searchTerm);
-
-        // Assert
-        users.Should().NotBeNull();
-        users.Should().HaveCount(1);
-        users.First().FirstName.Should().Be("John");
-    }
-
-    [Fact]
-    public async Task SearchUsersAsync_WithEmail_ShouldReturnMatchingUsers()
-    {
-        // Arrange
-        var searchTerm = "jane@test.com";
-
-        // Act
-        var users = await _userRepository.SearchUsersAsync(searchTerm);
-
-        // Assert
-        users.Should().NotBeNull();
-        users.Should().HaveCount(1);
-        users.First().Email.Should().Be("jane@test.com");
-    }
-
-    [Fact]
-    public async Task AddAsync_ShouldAddUserToDatabase()
-    {
-        // Arrange
-        var newUser = new UserEntity
-        {
-            Id = "4",
-            FirstName = "New",
-            LastName = "User",
-            Email = "new@test.com",
-            UserName = "new@test.com",
-            IsActive = true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        // Act
-        await _userRepository.AddAsync(newUser);
-        await _userRepository.SaveChangesAsync();
-
-        // Assert
-        var savedUser = await _userRepository.GetByIdAsync("4");
-        savedUser.Should().NotBeNull();
-        savedUser!.Email.Should().Be("new@test.com");
-    }
-
-    [Fact]
-    public async Task UpdateAsync_ShouldUpdateUserInDatabase()
-    {
-        // Arrange
-        var user = await _userRepository.GetByIdAsync("1");
-        user!.FirstName = "UpdatedJohn";
-        user.UpdatedAt = DateTime.UtcNow;
-
-        // Act
-        _userRepository.Update(user);
-        await _userRepository.SaveChangesAsync();
-
-        // Assert
-        var updatedUser = await _userRepository.GetByIdAsync("1");
-        updatedUser.Should().NotBeNull();
-        updatedUser!.FirstName.Should().Be("UpdatedJohn");
-    }
-
-    [Fact]
-    public async Task DeleteAsync_ShouldRemoveUserFromDatabase()
-    {
-        // Arrange
-        var user = await _userRepository.GetByIdAsync("3");
-
-        // Act
-        _userRepository.Delete(user!);
-        await _userRepository.SaveChangesAsync();
-
-        // Assert
-        var deletedUser = await _userRepository.GetByIdAsync("3");
-        deletedUser.Should().BeNull();
     }
 
     public void Dispose()

@@ -1,6 +1,5 @@
 using Base.UserManagement.Domain.Services;
 using Base.UserManagement.Domain.DTOs.User;
-using Base.UserManagement.Domain.DTOs.Role;
 using Base.UserManagement.Domain.Models;
 using Base.UserManagement.EFCore.Entities.User;
 using Base.UserManagement.EFCore.Repositories.Interfaces;
@@ -15,7 +14,6 @@ namespace Base.UserManagement.Domain.UnitTests.TestCase;
 public class UserServiceTests
 {
     private readonly Mock<UserManager<UserEntity>> _mockUserManager;
-    private readonly Mock<RoleManager<RoleEntity>> _mockRoleManager;
     private readonly Mock<IUserRepository> _mockUserRepository;
     private readonly Mock<IMapper> _mockMapper;
     private readonly Mock<ILogger<UserService>> _mockLogger;
@@ -28,11 +26,6 @@ public class UserServiceTests
         _mockUserManager = new Mock<UserManager<UserEntity>>(
             mockUserStore.Object, null!, null!, null!, null!, null!, null!, null!, null!);
 
-        // Setup RoleManager mock
-        var mockRoleStore = new Mock<IRoleStore<RoleEntity>>();
-        _mockRoleManager = new Mock<RoleManager<RoleEntity>>(
-            mockRoleStore.Object, null!, null!, null!, null!);
-
         _mockUserRepository = new Mock<IUserRepository>();
         _mockMapper = new Mock<IMapper>();
         _mockLogger = new Mock<ILogger<UserService>>();
@@ -40,9 +33,69 @@ public class UserServiceTests
         _userService = new UserService(
             _mockUserRepository.Object,
             _mockUserManager.Object,
-            _mockRoleManager.Object,
             _mockMapper.Object,
             _mockLogger.Object);
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_WithNullEmail_ShouldThrowArgumentException()
+    {
+        var createRequest = new CreateUserRequest(
+            Email: null!,
+            Password: "Password123!",
+            FirstName: "Test",
+            LastName: "User",
+            Language: "en-US"
+        );
+        await Assert.ThrowsAsync<ArgumentException>(async () => await _userService.CreateUserAsync(createRequest));
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_WithEmptyPassword_ShouldThrowArgumentException()
+    {
+        var createRequest = new CreateUserRequest(
+            Email: "test@example.com",
+            Password: "",
+            FirstName: "Test",
+            LastName: "User",
+            Language: "en-US"
+        );
+        await Assert.ThrowsAsync<ArgumentException>(async () => await _userService.CreateUserAsync(createRequest));
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_WithNullFirstName_ShouldThrowArgumentException()
+    {
+        var createRequest = new CreateUserRequest(
+            Email: "test@example.com",
+            Password: "Password123!",
+            FirstName: null!,
+            LastName: "User",
+            Language: "en-US"
+        );
+        await Assert.ThrowsAsync<ArgumentException>(async () => await _userService.CreateUserAsync(createRequest));
+    }
+
+    [Fact]
+    public async Task GetUserByIdAsync_RepositoryThrowsException_ShouldPropagateException()
+    {
+        var userId = "1";
+        _mockUserRepository.Setup(x => x.GetByIdAsync(userId)).ThrowsAsync(new Exception("Database error"));
+        await Assert.ThrowsAsync<Exception>(async () => await _userService.GetUserByIdAsync(userId));
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_MapperThrowsException_ShouldPropagateException()
+    {
+        var createRequest = new CreateUserRequest(
+            Email: "test@example.com",
+            Password: "Password123!",
+            FirstName: "Test",
+            LastName: "User",
+            Language: "en-US"
+        );
+        _mockMapper.Setup(x => x.Map<UserEntity>(createRequest)).Throws(new InvalidOperationException("Mapping error"));
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await _userService.CreateUserAsync(createRequest));
     }
 
     [Fact]
@@ -103,14 +156,27 @@ public class UserServiceTests
     {
         // Arrange
         var userId = "1";
-        var user = new UserEntity { Id = userId, FirstName = "John", LastName = "Doe", Email = "john@test.com" };
+        var userEntity = new UserEntity { Id = userId, FirstName = "John", LastName = "Doe", Email = "john@test.com" };
+        var user = new User
+        {
+            Id = userId,
+            FirstName = "John",
+            LastName = "Doe",
+            Email = "john@test.com",
+            Roles = new List<string> { "Member" }
+        };
         var userDto = new UserDto(userId, "john@test.com", "John", "Doe", "John Doe", null, null, null, "en", DateTime.UtcNow, DateTime.UtcNow, true, null, new List<string>());
 
         _mockUserRepository.Setup(x => x.GetByIdAsync(userId))
-            .ReturnsAsync(user);
+            .ReturnsAsync(userEntity);
+        var roles = new List<string> { "Admin", "Member" };
+        _mockUserManager.Setup(x => x.GetRolesAsync(userEntity))
+            .ReturnsAsync(roles);
+        _mockMapper.Setup(x => x.Map<User>(userEntity))
+            .Returns(user);
         _mockMapper.Setup(x => x.Map<UserDto>(user))
             .Returns(userDto);
-
+        
         // Act
         var result = await _userService.GetUserByIdAsync(userId);
 

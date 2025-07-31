@@ -4,7 +4,7 @@ using Base.UserManagement.EFCore.Entities.User;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
-namespace Base.UserManagement.Domain.UnitTests;
+namespace Base.UserManagement.Domain.UnitTests.Testable;
 
 public class TestableRoleService
 {

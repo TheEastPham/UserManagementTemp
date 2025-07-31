@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Base.UserManagement.EFCore.Data;
-using Base.UserManagement.Domain.DTOs;
+using Base.UserManagement.Domain.DTOs.Auth;
+using Base.UserManagement.Domain.DTOs.Account;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
@@ -146,7 +147,7 @@ public class AuthControllerIntegrationTests : IClassFixture<WebApplicationFactor
 
         loginResult.Should().NotBeNull();
         loginResult!.Success.Should().BeTrue();
-        loginResult.Token.Should().NotBeNull();
-        loginResult.Token!.AccessToken.Should().NotBeNullOrEmpty();
+        loginResult.AccessToken.Should().NotBeNull();
+        loginResult.AccessToken!.Should().NotBeNullOrEmpty();
     }
 }

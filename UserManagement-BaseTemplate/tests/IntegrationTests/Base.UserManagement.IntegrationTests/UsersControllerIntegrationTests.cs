@@ -3,7 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Base.UserManagement.EFCore.Data;
-using Base.UserManagement.Domain.DTOs;
+using Base.UserManagement.Domain.DTOs.User;
+using Base.UserManagement.Domain.DTOs.Role;
+using Base.UserManagement.Domain.DTOs.Auth;
+using Base.UserManagement.Domain.DTOs.Account;
 using FluentAssertions;
 using System.Net;
 using System.Net.Http.Json;
@@ -72,7 +75,7 @@ public class UsersControllerIntegrationTests : IClassFixture<WebApplicationFacto
             PropertyNameCaseInsensitive = true 
         });
 
-        return loginResult!.Token!.AccessToken;
+        return loginResult!.AccessToken!;
     }
 
     [Fact]
@@ -167,7 +170,7 @@ public class UsersControllerIntegrationTests : IClassFixture<WebApplicationFacto
             Email: "newuser@test.com",
             FirstName: "New",
             LastName: "User",
-            PhoneNumber: "9876543210",
+            Password: "9876543210",
             Language: "vi-VN"
         );
 
@@ -178,7 +181,7 @@ public class UsersControllerIntegrationTests : IClassFixture<WebApplicationFacto
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
         var content = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<CreateUserResponse>(content, new JsonSerializerOptions 
+        var result = JsonSerializer.Deserialize<LoginResponse>(content, new JsonSerializerOptions 
         { 
             PropertyNameCaseInsensitive = true 
         });
@@ -198,7 +201,7 @@ public class UsersControllerIntegrationTests : IClassFixture<WebApplicationFacto
             Email: "admin@test.com", // This email already exists from auth setup
             FirstName: "Duplicate",
             LastName: "User",
-            PhoneNumber: "9876543210",
+            Password: "9876543210",
             Language: "vi-VN"
         );
 

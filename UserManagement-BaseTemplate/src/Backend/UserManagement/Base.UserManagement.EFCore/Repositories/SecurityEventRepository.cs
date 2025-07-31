@@ -1,5 +1,5 @@
 using Base.UserManagement.EFCore.Data;
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.EFCore.Entities.Security;
 using Base.UserManagement.EFCore.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 

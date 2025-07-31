@@ -10,12 +10,13 @@ COPY src/Backend/UserManagement/Base.UserManagement.API/Base.UserManagement.API.
 COPY src/Backend/UserManagement/Base.UserManagement.Domain/Base.UserManagement.Domain.csproj ./src/Backend/UserManagement/Base.UserManagement.Domain/
 COPY src/Backend/UserManagement/Base.UserManagement.EFCore/Base.UserManagement.EFCore.csproj ./src/Backend/UserManagement/Base.UserManagement.EFCore/
 COPY src/Backend/Gateways/Base.ApiGateway/Base.ApiGateway.csproj ./src/Backend/Gateways/Base.ApiGateway/
+# Không copy các folder test vào image production
 
 # Restore dependencies
 WORKDIR /app/src/Backend
 RUN dotnet restore Base.sln
 
-# Copy all source code
+# Copy all source code (không copy tests)
 COPY src/Backend/ ./
 
 # Build the application

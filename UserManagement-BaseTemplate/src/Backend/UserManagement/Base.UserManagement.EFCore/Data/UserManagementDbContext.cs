@@ -1,4 +1,5 @@
-using Base.UserManagement.EFCore.Entities;
+using Base.UserManagement.EFCore.Entities.User;
+using Base.UserManagement.EFCore.Entities.Security;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -13,6 +14,7 @@ public class UserManagementDbContext : IdentityDbContext<UserEntity, RoleEntity,
 
     public DbSet<UserProfileEntity> UserProfiles { get; set; }
     public DbSet<SecurityEventEntity> SecurityEvents { get; set; }
+    public DbSet<EmailVerificationTokenEntity> EmailVerificationTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -66,6 +68,24 @@ public class UserManagementDbContext : IdentityDbContext<UserEntity, RoleEntity,
             entity.Property(e => e.UserAgent).HasMaxLength(500);
             entity.Property(e => e.Severity).HasMaxLength(20);
             entity.Property(e => e.Details).HasMaxLength(4000);
+        });
+
+        // Configure EmailVerificationTokenEntity
+        builder.Entity<EmailVerificationTokenEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.UserId);
+            entity.HasIndex(e => e.Token).IsUnique();
+            entity.HasIndex(e => e.Email);
+            entity.HasIndex(e => e.ExpiresAt);
+            entity.Property(e => e.Token).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Email).HasMaxLength(256).IsRequired();
+            
+            // Relationship with UserEntity
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Configure RoleEntity

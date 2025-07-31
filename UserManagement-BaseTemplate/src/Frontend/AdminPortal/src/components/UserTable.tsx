@@ -1,44 +1,47 @@
 import { Table, Switch, Tag, Select, Button } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { apiService } from '@/lib/services/api';
+import type { User } from '@/types/userManagement';
 
-const roles = ['admin', 'user'];
-const initialUsers = [
-  { key: 1, name: 'Nguyen Van A', email: 'a@email.com', active: true, roles: ['admin'] },
-  { key: 2, name: 'Tran Thi B', email: 'b@email.com', active: false, roles: ['user'] },
-];
+const roles = ['Admin', 'Member'];
 
 export default function UserTable() {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      setLoading(true);
+      try {
+        const res = await apiService.getAllUsers({ page: 1, pageSize: 20 });
+        setUsers(res.users || []);
+      } catch (err) {
+        // TODO: handle error
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchUsers();
+  }, []);
+
   const columns = [
-    { title: 'Tên', dataIndex: 'name', key: 'name' },
+    { title: 'Tên', dataIndex: 'firstName', key: 'firstName', render: (_: any, record: User) => `${record.firstName ?? ''} ${record.lastName ?? ''}` },
     { title: 'Email', dataIndex: 'email', key: 'email' },
-    { title: 'Trạng thái', dataIndex: 'active', key: 'active', render: (active: boolean, record: any) => (
-      <Switch checked={active} onChange={() => toggleActive(record.key)} />
+    { title: 'Trạng thái', dataIndex: 'isActive', key: 'isActive', render: (active: boolean, record: User) => (
+      <Switch checked={active} disabled />
     ) },
-    { title: 'Role', dataIndex: 'roles', key: 'roles', render: (roles: string[], record: any) => (
+    { title: 'Role', dataIndex: 'roles', key: 'roles', render: (roles: string[], record: User) => (
       <Select
         mode="multiple"
         value={roles}
         style={{ minWidth: 120 }}
-        onChange={vals => changeRoles(record.key, vals)}
+        disabled
       >
         {roles.map(role => <Select.Option key={role} value={role}>{role}</Select.Option>)}
       </Select>
     ) },
-    { title: 'Hành động', key: 'action', render: (_: any, record: any) => (
-      <Button danger onClick={() => deleteUser(record.key)}>Xóa</Button>
-    ) },
+    // ...existing code...
   ];
 
-  function toggleActive(key: number) {
-    setUsers(users => users.map(u => u.key === key ? { ...u, active: !u.active } : u));
-  }
-  function changeRoles(key: number, vals: string[]) {
-    setUsers(users => users.map(u => u.key === key ? { ...u, roles: vals } : u));
-  }
-  function deleteUser(key: number) {
-    setUsers(users => users.filter(u => u.key !== key));
-  }
-
-  return <Table columns={columns} dataSource={users} pagination={{ pageSize: 5 }} />;
+  return <Table columns={columns} dataSource={users} loading={loading} rowKey="id" pagination={{ pageSize: 20 }} />;
 }

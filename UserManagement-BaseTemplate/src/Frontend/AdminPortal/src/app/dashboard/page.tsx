@@ -27,6 +27,15 @@ export default function DashboardPage(): React.JSX.Element {
     // Redirect to login if not authenticated
     if (!isLoading && (!authStore.isAuthenticated || !authStore.user)) {
       router.replace('/login');
+      return;
+    }
+    // Redirect Member to profile
+    if (!isLoading && authStore.user) {
+      const roles = authStore.user.roles || [];
+      const primaryRole = authStore.user.role || roles[0];
+      if (!roles.includes('Admin') && primaryRole !== 'Admin') {
+        router.replace('/profile');
+      }
     }
   }, [isLoading, authStore.isAuthenticated, authStore.user, router]);
 

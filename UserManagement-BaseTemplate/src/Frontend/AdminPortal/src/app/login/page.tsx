@@ -27,7 +27,13 @@ export default function LoginPage(): React.JSX.Element {
 
     try {
       await login(formData);
-      router.push('/dashboard'); // Redirect to dashboard after login
+      // Get user from store after login
+      const user = useAuthStore.getState().user;
+      if (user?.roles?.includes('Admin') || user?.role === 'Admin') {
+        router.push('/dashboard');
+      } else {
+        router.push('/profile');
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Invalid email or password');

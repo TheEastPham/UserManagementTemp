@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   # SQL Server Database
@@ -48,7 +48,7 @@ services:
       - ConnectionStrings__DefaultConnection=Server=sql-server;Database=baseUserManagement;User Id=sa;Password=DevPassword123!;TrustServerCertificate=true;
       - ConnectionStrings__Redis=redis:6379
       - JwtSettings__SecretKey=LocalDevelopmentSecretKeyThatShouldBeAtLeast32CharactersLong!
-      - JwtSettings__Issuer=base.UserManagement.Local
+      - JwtSettings__Issuer=UserManagement.Local
       - JwtSettings__Audience=base.Client.Local
       - JwtSettings__ExpiryMinutes=1440
       - Seeding__SeedInitialAdmin=true

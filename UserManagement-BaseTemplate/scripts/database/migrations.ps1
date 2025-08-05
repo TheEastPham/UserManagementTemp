@@ -1,4 +1,4 @@
-# ========================================================================
+﻿# ========================================================================
 # Simple Local Development Database Migration Script
 # ========================================================================
 
@@ -21,7 +21,7 @@ function Write-Warning { param([string]$Message) Write-Host $Message -Foreground
 function Write-Error { param([string]$Message) Write-Host $Message -ForegroundColor Red }
 
 if ($Help) {
-    Write-Info "🗄️ Local Development Database Migration Tool"
+    Write-Info "ðŸ—„ï¸ Local Development Database Migration Tool"
     Write-Info "============================================="
     Write-Info ""
     Write-Info "USAGE:"
@@ -40,13 +40,13 @@ if ($Help) {
     exit 0
 }
 
-Write-Info "🗄️ Local Development Database Migration Tool"
+Write-Info "ðŸ—„ï¸ Local Development Database Migration Tool"
 Write-Info "============================================="
 
 # Navigate to UserManagement project
-$projectPath = "src/Backend/UserManagement/Base.UserManagement.API"
+$projectPath = "src/Backend/UserManagement/UserManagement.API"
 if (!(Test-Path $projectPath)) {
-    Write-Error "❌ UserManagement project not found at: $projectPath"
+    Write-Error "âŒ UserManagement project not found at: $projectPath"
     exit 1
 }
 
@@ -54,10 +54,10 @@ Set-Location $projectPath
 
 # Set connection string based on SQL type
 if ($UseDockerSql) {
-    Write-Info "🐳 Using Docker SQL Server 2022"
+    Write-Info "ðŸ³ Using Docker SQL Server 2022"
     $connectionString = "Server=localhost,1433;Database=baseUserManagement;User Id=sa;Password=DevPassword123!;TrustServerCertificate=true;"
 } else {
-    Write-Info "🗄️ Using LocalDB"
+    Write-Info "ðŸ—„ï¸ Using LocalDB"
     $connectionString = "Server=(localdb)\mssqllocaldb;Database=baseUserManagement;Trusted_Connection=true;MultipleActiveResultSets=true"
 }
 
@@ -69,41 +69,41 @@ $env:ConnectionStrings__DefaultConnection = $connectionString
 # Check if EF Core tools are installed
 try {
     $efVersion = dotnet ef --version
-    Write-Success "✅ Entity Framework Core tools found: $efVersion"
+    Write-Success "âœ… Entity Framework Core tools found: $efVersion"
 } catch {
-    Write-Error "❌ Entity Framework Core tools not found. Install with: dotnet tool install --global dotnet-ef"
+    Write-Error "âŒ Entity Framework Core tools not found. Install with: dotnet tool install --global dotnet-ef"
     exit 1
 }
 
 # Reset Database
 if ($ResetDatabase) {
-    Write-Warning "🗑️ Resetting database..."
+    Write-Warning "ðŸ—‘ï¸ Resetting database..."
     try {
         dotnet ef database drop --force
-        Write-Success "✅ Database dropped"
+        Write-Success "âœ… Database dropped"
     } catch {
-        Write-Warning "⚠️ Database drop failed or database doesn't exist"
+        Write-Warning "âš ï¸ Database drop failed or database doesn't exist"
     }
 }
 
 # Create Initial Migration
 if ($CreateInitialMigration) {
-    Write-Info "📝 Creating initial migration..."
+    Write-Info "ðŸ“ Creating initial migration..."
     
     # Check if migrations already exist
     if (Test-Path "Migrations") {
-        Write-Warning "⚠️ Migrations folder already exists. Skipping initial migration."
+        Write-Warning "âš ï¸ Migrations folder already exists. Skipping initial migration."
     } else {
         try {
             dotnet ef migrations add InitialCreate
             if ($LASTEXITCODE -eq 0) {
-                Write-Success "✅ Initial migration created successfully"
+                Write-Success "âœ… Initial migration created successfully"
             } else {
-                Write-Error "❌ Failed to create initial migration"
+                Write-Error "âŒ Failed to create initial migration"
                 exit 1
             }
         } catch {
-            Write-Error "❌ Error creating initial migration: $($_.Exception.Message)"
+            Write-Error "âŒ Error creating initial migration: $($_.Exception.Message)"
             exit 1
         }
     }
@@ -112,59 +112,59 @@ if ($CreateInitialMigration) {
 # Add Migration
 if ($AddMigration) {
     if ([string]::IsNullOrWhiteSpace($MigrationName)) {
-        Write-Error "❌ Migration name is required when using -AddMigration"
+        Write-Error "âŒ Migration name is required when using -AddMigration"
         exit 1
     }
     
-    Write-Info "📝 Adding migration: $MigrationName"
+    Write-Info "ðŸ“ Adding migration: $MigrationName"
     try {
         dotnet ef migrations add $MigrationName
         if ($LASTEXITCODE -eq 0) {
-            Write-Success "✅ Migration '$MigrationName' added successfully"
+            Write-Success "âœ… Migration '$MigrationName' added successfully"
         } else {
-            Write-Error "❌ Failed to add migration '$MigrationName'"
+            Write-Error "âŒ Failed to add migration '$MigrationName'"
             exit 1
         }
     } catch {
-        Write-Error "❌ Error adding migration: $($_.Exception.Message)"
+        Write-Error "âŒ Error adding migration: $($_.Exception.Message)"
         exit 1
     }
 }
 
 # Update Database
 if ($UpdateDatabase) {
-    Write-Info "🔄 Updating database..."
+    Write-Info "ðŸ”„ Updating database..."
     try {
         dotnet ef database update --connection $connectionString
         if ($LASTEXITCODE -eq 0) {
-            Write-Success "✅ Database updated successfully"
+            Write-Success "âœ… Database updated successfully"
         } else {
-            Write-Error "❌ Failed to update database"
+            Write-Error "âŒ Failed to update database"
             exit 1
         }
     } catch {
-        Write-Error "❌ Error updating database: $($_.Exception.Message)"
+        Write-Error "âŒ Error updating database: $($_.Exception.Message)"
         exit 1
     }
 }
 
 # Show Migrations
 if ($ShowMigrations) {
-    Write-Info "📋 Showing migrations..."
+    Write-Info "ðŸ“‹ Showing migrations..."
     try {
         dotnet ef migrations list --connection $connectionString
     } catch {
-        Write-Error "❌ Error showing migrations: $($_.Exception.Message)"
+        Write-Error "âŒ Error showing migrations: $($_.Exception.Message)"
         exit 1
     }
 }
 
 # Seed Data
 if ($SeedData) {
-    Write-Info "🌱 Seeding database with test data..."
+    Write-Info "ðŸŒ± Seeding database with test data..."
     
     # For now, just show that we would seed data
-    Write-Info "📋 Seeding would be implemented here"
+    Write-Info "ðŸ“‹ Seeding would be implemented here"
     Write-Success "Database seeded (placeholder)"
 }
 

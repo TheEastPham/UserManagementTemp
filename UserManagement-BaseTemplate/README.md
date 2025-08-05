@@ -1,11 +1,11 @@
-# Project Base Template
+﻿# Project UserManagement Template
 
 This is a ready-to-use template for web applications with:
-- ✅ User Management System (.NET Core)
-- ✅ Admin Portal (Next.js)
-- ✅ Authentication & Authorization
-- ✅ Docker Infrastructure
-- ✅ Database Migrations
+- âœ… User Management System (.NET Core)
+- âœ… Admin Portal (Next.js)
+- âœ… Authentication & Authorization
+- âœ… Docker Infrastructure
+- âœ… Database Migrations
 
 ## Quick Start
 
@@ -46,25 +46,25 @@ This is a ready-to-use template for web applications with:
 
 ## Features
 
-### 🔐 Authentication
+### ðŸ” Authentication
 - JWT token authentication
 - Role-based authorization
 - External providers (Google, Facebook)
 - Password reset & email confirmation
 
-### 👥 User Management
+### ðŸ‘¥ User Management
 - User registration/login
 - Profile management
 - Role assignment
 - User activity tracking
 
-### 🎛 Admin Portal
+### ðŸŽ› Admin Portal
 - User management dashboard
 - Role & permission management
 - System monitoring
 - Responsive design
 
-### 🐳 Infrastructure
+### ðŸ³ Infrastructure
 - Docker Compose setup
 - SQL Server database
 - Redis caching

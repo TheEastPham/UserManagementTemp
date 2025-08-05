@@ -1,4 +1,4 @@
-# Setup script for new project
+﻿# Setup script for new project
 param(
     [Parameter(Mandatory=$true)]
     [string]$ProjectName,
@@ -24,7 +24,7 @@ Get-ChildItem -Recurse -File | ForEach-Object {
                 -replace "{{CompanyName}}", $CompanyName 
                 -replace "{{Namespace}}", $Namespace 
                 -replace "base\.UserManagement", "$Namespace.UserManagement" 
-                -replace "base-UserManagement", "$ProjectName-UserManagement"
+                -replace "UserManagement", "$ProjectName-UserManagement"
             
             if ($updated -ne $content) {
                 Set-Content $_.FullName $updated -NoNewline

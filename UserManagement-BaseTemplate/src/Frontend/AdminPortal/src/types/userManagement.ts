@@ -3,7 +3,7 @@ export interface User {
   email: string;
   firstName: string | null;
   lastName: string | null;
-  emailConfirmed: boolean;
+  emailConfirmed?: boolean;
   isActive: boolean;
   createdAt: string;
   lastLoginAt: string | null;

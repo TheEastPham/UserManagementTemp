@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   sqlserver:
@@ -29,7 +29,7 @@ services:
   integration-tests:
     build:
       context: ../../..
-      dockerfile: tests/IntegrationTests/Base.UserManagement.IntegrationTests/Dockerfile
+      dockerfile: tests/IntegrationTests/UserManagement.IntegrationTests/Dockerfile
     depends_on:
       sqlserver:
         condition: service_healthy

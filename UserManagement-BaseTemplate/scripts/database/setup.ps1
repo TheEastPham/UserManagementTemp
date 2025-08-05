@@ -138,7 +138,7 @@ BEGIN
 END
 
 -- Check if admin user exists
-IF NOT EXISTS (SELECT 1 FROM AspNetUsers WHERE Email = 'admin@base.com')
+IF NOT EXISTS (SELECT 1 FROM AspNetUsers WHERE Email = 'admin@admin.com')
 BEGIN
     DECLARE @adminId UNIQUEIDENTIFIER = NEWID();
     DECLARE @adminRoleId UNIQUEIDENTIFIER = (SELECT Id FROM AspNetRoles WHERE Name = 'Administrator');

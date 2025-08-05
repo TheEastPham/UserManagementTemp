@@ -5,22 +5,22 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copy solution and project files first for layer caching
-COPY src/Backend/Base.sln ./src/Backend/
-COPY src/Backend/UserManagement/Base.UserManagement.API/Base.UserManagement.API.csproj ./src/Backend/UserManagement/Base.UserManagement.API/
-COPY src/Backend/UserManagement/Base.UserManagement.Domain/Base.UserManagement.Domain.csproj ./src/Backend/UserManagement/Base.UserManagement.Domain/
-COPY src/Backend/UserManagement/Base.UserManagement.EFCore/Base.UserManagement.EFCore.csproj ./src/Backend/UserManagement/Base.UserManagement.EFCore/
-COPY src/Backend/Gateways/Base.ApiGateway/Base.ApiGateway.csproj ./src/Backend/Gateways/Base.ApiGateway/
+COPY src/Backend/UserManagement.sln ./src/Backend/
+COPY src/Backend/UserManagement/UserManagement.API/UserManagement.API.csproj ./src/Backend/UserManagement/UserManagement.API/
+COPY src/Backend/UserManagement/UserManagement.Domain/UserManagement.Domain.csproj ./src/Backend/UserManagement/UserManagement.Domain/
+COPY src/Backend/UserManagement/UserManagement.EFCore/UserManagement.EFCore.csproj ./src/Backend/UserManagement/UserManagement.EFCore/
+COPY src/Backend/Gateways/ApiGateway/ApiGateway.csproj ./src/Backend/Gateways/ApiGateway/
 # Không copy các folder test vào image production
 
 # Restore dependencies
 WORKDIR /app/src/Backend
-RUN dotnet restore Base.sln
+RUN dotnet restore UserManagement.sln
 
 # Copy all source code (không copy tests)
 COPY src/Backend/ ./
 
 # Build the application
-WORKDIR /app/src/Backend/UserManagement/Base.UserManagement.API
+WORKDIR /app/src/Backend/UserManagement/UserManagement.API
 RUN dotnet publish -c Release -o /app/publish
 
 # ================================
@@ -49,4 +49,4 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-ENTRYPOINT ["dotnet", "Base.UserManagement.API.dll"]
+ENTRYPOINT ["dotnet", "UserManagement.API.dll"]

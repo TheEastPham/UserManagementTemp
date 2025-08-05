@@ -6,17 +6,17 @@ WORKDIR /app
 
 # Copy solution and project files
 COPY src/Backend/*.sln ./src/Backend/
-COPY src/Backend/Gateways/Base.ApiGateway/*.csproj ./src/Backend/Gateways/Base.ApiGateway/
+COPY src/Backend/Gateways/ApiGateway/*.csproj ./src/Backend/Gateways/ApiGateway/
 
 # Clear NuGet cache and restore dependencies
 RUN dotnet nuget locals all --clear
-RUN dotnet restore ./src/Backend/Gateways/Base.ApiGateway/Base.ApiGateway.csproj --verbosity normal
+RUN dotnet restore ./src/Backend/Gateways/ApiGateway/ApiGateway.csproj --verbosity normal
 
 # Copy source code
 COPY src/Backend/Gateways/ ./src/Backend/Gateways/
 
 # Build application (without --no-restore to ensure proper dependency resolution)
-WORKDIR /app/src/Backend/Gateways/Base.ApiGateway
+WORKDIR /app/src/Backend/Gateways/ApiGateway
 RUN dotnet publish -c Release -o /app/publish
 
 # ================================
@@ -45,4 +45,4 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost/health || exit 1
 
-ENTRYPOINT ["dotnet", "Base.ApiGateway.dll"]
+ENTRYPOINT ["dotnet", "ApiGateway.dll"]

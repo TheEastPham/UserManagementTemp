@@ -1,4 +1,4 @@
-# ========================================================================
+﻿# ========================================================================
 # Simple Local Development Database Migration Script
 # ========================================================================
 
@@ -44,7 +44,7 @@ Write-Info "Local Development Database Migration Tool"
 Write-Info "========================================"
 
 # Navigate to UserManagement project
-$projectPath = "src/Backend/UserManagement/Base.UserManagement.API"
+$projectPath = "src/Backend/UserManagement/UserManagement.API"
 if (!(Test-Path $projectPath)) {
     Write-Error "UserManagement project not found at: $projectPath"
     exit 1

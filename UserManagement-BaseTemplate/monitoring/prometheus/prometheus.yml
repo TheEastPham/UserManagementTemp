@@ -1,4 +1,4 @@
-global:
+﻿global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
@@ -13,7 +13,7 @@ scrape_configs:
       - targets: ['localhost:9090']
 
   # Base UserManagement API
-  - job_name: 'base-usermanagement-api'
+  - job_name: 'UserManagement-api'
     static_configs:
       - targets: ['host.docker.internal:8080']
     metrics_path: '/metrics'
